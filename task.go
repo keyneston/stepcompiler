@@ -2,14 +2,17 @@ package stepcompiler
 
 import "encoding/json"
 
+// Task is a builder for building Tasks.
+//
+// See https://docs.aws.amazon.com/step-functions/latest/dg/amazon-states-language-task-state.html for full details.
 type Task struct {
 	name       string
-	parameters map[string]interface{} `json:"Parameters,omitempty"`
-	resultPath string                 `json:"ResultPath,omitempty"`
-	resource   string                 `json:"Resource,omitempty"`
-	next       State                  `json:"Next,omitempty"`
-	catch      []*CatchClause         `json:"Catch,omitempty"`
-	comment    string                 `json:"Comment,omitempty"`
+	parameters map[string]interface{}
+	resultPath string
+	resource   string
+	next       State
+	catch      []*CatchClause
+	comment    string
 }
 
 type taskOutput struct {

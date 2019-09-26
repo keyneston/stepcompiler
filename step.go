@@ -2,20 +2,6 @@ package stepcompiler
 
 import "encoding/json"
 
-type StateType string
-
-const (
-	TaskType    StateType = "Task"
-	PassType    StateType = "Pass"
-	SucceedType StateType = "Succeed"
-)
-
-type State interface {
-	Name() string
-	StateType() StateType
-	GatherStates() []State
-}
-
 type StepFunctionBuilder struct {
 	comment string
 	startAt State
