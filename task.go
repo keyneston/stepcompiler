@@ -2,8 +2,6 @@ package stepcompiler
 
 import "encoding/json"
 
-const TaskType = "Task"
-
 type Task struct {
 	name       string
 	parameters map[string]interface{} `json:"Parameters,omitempty"`
@@ -15,7 +13,7 @@ type Task struct {
 }
 
 type taskOutput struct {
-	Type       string                 `json:"Type"`
+	Type       StateType              `json:"Type"`
 	Parameters map[string]interface{} `json:"Parameters,omitempty"`
 	ResultPath string                 `json:"ResultPath,omitempty"`
 	Resource   string                 `json:"Resource,omitempty"`
@@ -25,7 +23,7 @@ type taskOutput struct {
 	End        bool                   `json:"End,omitempty"`
 }
 
-func (Task) StateType() string {
+func (Task) StateType() StateType {
 	return TaskType
 }
 

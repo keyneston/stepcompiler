@@ -2,9 +2,16 @@ package stepcompiler
 
 import "encoding/json"
 
+type StateType string
+
+const (
+	TaskType StateType = "Task"
+	PassType StateType = "Pass"
+)
+
 type State interface {
 	Name() string
-	StateType() string
+	StateType() StateType
 	GatherStates() []State
 }
 

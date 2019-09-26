@@ -6,32 +6,29 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestTaskIsState(t *testing.T) {
+func TestPassIsState(t *testing.T) {
 	assert.Implements(t, (*State)(nil), &Pass{})
 }
 
-func TestTask(t *testing.T) {
+func TestPass(t *testing.T) {
 	step := NewBuilder()
-	task := NewTask("Foo").Next(NewTask("Bar").Comment("Bar does bar things"))
+	pass := NewPass("Foo").Next(NewPass("Bar"))
 
 	expected := `
 {
     "StartAt": "",
     "States": {
         "Bar": {
-            "Type": "Task",
-            "End": true,
-			"Comment": "Bar does bar things"
+            "Type": "Pass",
+            "End": true
         },
         "Foo": {
-            "Type": "Task",
+            "Type": "Pass",
             "Next": "Bar"
         }
     }
-}
-`
-
-	step.StartAt(task)
+}`
+	step.StartAt(pass)
 
 	output, err := step.Render()
 	assert.NoError(t, err)
