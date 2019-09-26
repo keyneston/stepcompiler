@@ -10,8 +10,8 @@ import (
 func main() {
 	builder := step.NewBuilder().Comment("This is an example stepfunction")
 
-	firstState := step.NewTask("FirstState").SetComment("This is the first state").Next(
-		step.NewTask("SecondState").SetComment("This is the second state"),
+	firstState := step.NewTask("FirstState").Comment("This is the first state").Next(
+		step.NewTask("SecondState").Comment("This is the second state"),
 	)
 
 	builder.StartAt(firstState)
