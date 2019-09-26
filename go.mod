@@ -1,4 +1,4 @@
-module github.com/fibrenation/stepcompiler
+module github.com/keyneston/stepcompiler
 
 go 1.12
 

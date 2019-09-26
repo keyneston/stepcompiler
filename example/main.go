@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	step "github.com/fibrenation/stepcompiler"
+	step "github.com/keyneston/stepcompiler"
 )
 
 func main() {
