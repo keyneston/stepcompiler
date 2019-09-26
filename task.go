@@ -1,16 +1,28 @@
 package stepcompiler
 
+import "encoding/json"
+
 const TaskType = "Task"
 
 type Task struct {
-	name       string                 `json:"-"`
+	name       string
+	parameters map[string]interface{} `json:"Parameters,omitempty"`
+	resultPath string                 `json:"ResultPath,omitempty"`
+	resource   string                 `json:"Resource,omitempty"`
+	next       State                  `json:"Next,omitempty"`
+	catch      []CatchClause          `json:"Catch,omitempty"`
+	comment    string                 `json:"Comment,omitempty"`
+}
+
+type taskOutput struct {
 	Type       string                 `json:"Type"`
 	Parameters map[string]interface{} `json:"Parameters,omitempty"`
 	ResultPath string                 `json:"ResultPath,omitempty"`
 	Resource   string                 `json:"Resource,omitempty"`
-	next       State                  `json:"Next,omitempty"`
+	Next       string                 `json:"Next,omitempty"`
 	Catch      []CatchClause          `json:"Catch,omitempty"`
 	Comment    string                 `json:"Comment,omitempty"`
+	End        bool                   `json:"End,omitempty"`
 }
 
 func (Task) StateType() string {
@@ -24,12 +36,11 @@ func (t Task) Name() string {
 func NewTask(name string) *Task {
 	return &Task{
 		name: name,
-		Type: TaskType,
 	}
 }
 
-func (t *Task) SetComment(comment string) *Task {
-	t.Comment = comment
+func (t *Task) Comment(comment string) *Task {
+	t.comment = comment
 	return t
 }
 
@@ -47,4 +58,19 @@ func (t *Task) GatherStates() []State {
 	}
 
 	return res
+}
+
+func (t Task) MarshalJSON() ([]byte, error) {
+	out := taskOutput{
+		Type:    t.StateType(),
+		Comment: t.comment,
+	}
+
+	if t.next != nil {
+		out.Next = t.next.Name()
+	} else {
+		out.End = true
+	}
+
+	return json.Marshal(out)
 }
