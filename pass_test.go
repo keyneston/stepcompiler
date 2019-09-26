@@ -6,8 +6,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPassIsState(t *testing.T) {
+func TestPassImplements(t *testing.T) {
 	assert.Implements(t, (*State)(nil), &Pass{})
+	assert.Implements(t, (*ChainableState)(nil), &Pass{})
 }
 
 func TestPass(t *testing.T) {

@@ -31,12 +31,6 @@ func NewBuilder() *StepFunctionBuilder {
 	return &StepFunctionBuilder{}
 }
 
-//func (sfb *StepFunctionBuilder) AddState(state State) *StepFunctionBuilder {
-//	sfb.States[state.Name()] = state
-//
-//	return sfb
-//}
-
 func (sfb *StepFunctionBuilder) StartAt(state State) *StepFunctionBuilder {
 	sfb.startAt = state
 
@@ -50,6 +44,10 @@ func (sfb *StepFunctionBuilder) Comment(comment string) *StepFunctionBuilder {
 
 func (sfb *StepFunctionBuilder) gatherStates() map[string]State {
 	states := map[string]State{}
+
+	if sfb.startAt == nil {
+		return states
+	}
 
 	states[sfb.startAt.Name()] = sfb.startAt
 

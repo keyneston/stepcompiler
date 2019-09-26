@@ -8,7 +8,7 @@ type Task struct {
 	resultPath string                 `json:"ResultPath,omitempty"`
 	resource   string                 `json:"Resource,omitempty"`
 	next       State                  `json:"Next,omitempty"`
-	catch      []CatchClause          `json:"Catch,omitempty"`
+	catch      []*CatchClause         `json:"Catch,omitempty"`
 	comment    string                 `json:"Comment,omitempty"`
 }
 
@@ -18,7 +18,7 @@ type taskOutput struct {
 	ResultPath string                 `json:"ResultPath,omitempty"`
 	Resource   string                 `json:"Resource,omitempty"`
 	Next       string                 `json:"Next,omitempty"`
-	Catch      []CatchClause          `json:"Catch,omitempty"`
+	Catch      []*CatchClause         `json:"Catch,omitempty"`
 	Comment    string                 `json:"Comment,omitempty"`
 	End        bool                   `json:"End,omitempty"`
 }
@@ -37,9 +37,35 @@ func NewTask(name string) *Task {
 	}
 }
 
+func (t *Task) Parameters(params map[string]interface{}) *Task {
+	t.parameters = params
+
+	return t
+}
+
+func (t *Task) ResultPath(resultPath string) *Task {
+	t.resultPath = resultPath
+	return t
+}
+
+func (t *Task) Resource(resource string) *Task {
+	t.resource = resource
+	return t
+}
+
 func (t *Task) Comment(comment string) *Task {
 	t.comment = comment
 	return t
+}
+
+func (t *Task) Catch(clause *CatchClause) *Task {
+	t.catch = append(t.catch, clause)
+
+	return t
+}
+
+func (t *Task) CatchChainable(clause *CatchClause) {
+	t.Catch(clause)
 }
 
 func (t *Task) Next(state State) *Task {
@@ -48,11 +74,20 @@ func (t *Task) Next(state State) *Task {
 	return t
 }
 
+func (t *Task) NextChainable(state State) {
+	t.Next(state)
+}
+
 func (t *Task) GatherStates() []State {
-	res := []State{}
+	res := []State{t}
 
 	if t.next != nil {
 		res = append(res, t.next)
+		res = append(res, t.next.GatherStates()...)
+	}
+
+	for _, clause := range t.catch {
+		res = append(res, clause.GatherStates()...)
 	}
 
 	return res
@@ -60,8 +95,12 @@ func (t *Task) GatherStates() []State {
 
 func (t Task) MarshalJSON() ([]byte, error) {
 	out := taskOutput{
-		Type:    t.StateType(),
-		Comment: t.comment,
+		Type:       t.StateType(),
+		Comment:    t.comment,
+		Resource:   t.resource,
+		Parameters: t.parameters,
+		ResultPath: t.resultPath,
+		Catch:      t.catch,
 	}
 
 	if t.next != nil {
