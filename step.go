@@ -2,7 +2,7 @@ package stepcompiler
 
 import "encoding/json"
 
-type StepFunctionBuilder struct {
+type Builder struct {
 	comment string
 	startAt State
 }
@@ -13,22 +13,22 @@ type stepFunction struct {
 	States  map[string]State `json:"States"`
 }
 
-func NewBuilder() *StepFunctionBuilder {
-	return &StepFunctionBuilder{}
+func NewBuilder() *Builder {
+	return &Builder{}
 }
 
-func (sfb *StepFunctionBuilder) StartAt(state State) *StepFunctionBuilder {
+func (sfb *Builder) StartAt(state State) *Builder {
 	sfb.startAt = state
 
 	return sfb
 }
 
-func (sfb *StepFunctionBuilder) Comment(comment string) *StepFunctionBuilder {
+func (sfb *Builder) Comment(comment string) *Builder {
 	sfb.comment = comment
 	return sfb
 }
 
-func (sfb *StepFunctionBuilder) gatherStates() map[string]State {
+func (sfb *Builder) gatherStates() map[string]State {
 	states := map[string]State{}
 
 	if sfb.startAt == nil {
@@ -44,7 +44,7 @@ func (sfb *StepFunctionBuilder) gatherStates() map[string]State {
 	return states
 }
 
-func (sfb *StepFunctionBuilder) Render() ([]byte, error) {
+func (sfb *Builder) Render() ([]byte, error) {
 	output := stepFunction{
 		Comment: sfb.comment,
 		States:  sfb.gatherStates(),
