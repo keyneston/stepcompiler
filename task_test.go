@@ -2,6 +2,7 @@ package stepcompiler
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -71,6 +72,29 @@ func TestTaskCatchGathered(t *testing.T) {
 			"End": true
 		}
     }
+}
+`
+
+	output, err := step.Render()
+	assert.NoError(t, err)
+	assert.JSONEq(t, string(output), expected)
+}
+
+func TestTaskTimeout(t *testing.T) {
+	step := NewBuilder().StartAt(NewTask("Foo").Timeout(time.Minute * 5))
+
+	// TODO: add test for sub 1 second.
+
+	expected := `
+{
+    "StartAt": "Foo",
+    "States": {
+        "Foo": {
+            "Type": "Task",
+			"TimeoutSeconds": 300,
+			"End": true
+        }
+	}
 }
 `
 
