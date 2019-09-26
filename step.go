@@ -5,8 +5,9 @@ import "encoding/json"
 type StateType string
 
 const (
-	TaskType StateType = "Task"
-	PassType StateType = "Pass"
+	TaskType    StateType = "Task"
+	PassType    StateType = "Pass"
+	SucceedType StateType = "Succeed"
 )
 
 type State interface {
@@ -63,6 +64,10 @@ func (sfb *StepFunctionBuilder) Render() ([]byte, error) {
 	output := stepFunction{
 		Comment: sfb.comment,
 		States:  sfb.gatherStates(),
+	}
+
+	if sfb.startAt != nil {
+		output.StartAt = sfb.startAt.Name()
 	}
 
 	return json.MarshalIndent(output, "", "    ")

@@ -16,7 +16,7 @@ func TestTask(t *testing.T) {
 
 	expected := `
 {
-    "StartAt": "",
+    "StartAt": "Foo",
     "States": {
         "Bar": {
             "Type": "Task",
