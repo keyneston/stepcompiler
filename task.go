@@ -20,15 +20,16 @@ type Task struct {
 }
 
 type taskOutput struct {
-	Type           StateType              `json:"Type"`
-	Parameters     map[string]interface{} `json:"Parameters,omitempty"`
-	ResultPath     string                 `json:"ResultPath,omitempty"`
-	Resource       string                 `json:"Resource,omitempty"`
-	Next           string                 `json:"Next,omitempty"`
-	Catch          []*CatchClause         `json:"Catch,omitempty"`
-	Comment        string                 `json:"Comment,omitempty"`
-	End            bool                   `json:"End,omitempty"`
-	TimeoutSeconds Timeout                `json:"TimeoutSeconds,omitempty"`
+	Type             StateType              `json:"Type"`
+	HeartbeatSeconds Timeout                `json:"HeartbeatSeconds,omitempty"`
+	Parameters       map[string]interface{} `json:"Parameters,omitempty"`
+	ResultPath       string                 `json:"ResultPath,omitempty"`
+	Resource         string                 `json:"Resource,omitempty"`
+	Next             string                 `json:"Next,omitempty"`
+	Catch            []*CatchClause         `json:"Catch,omitempty"`
+	Comment          string                 `json:"Comment,omitempty"`
+	End              bool                   `json:"End,omitempty"`
+	TimeoutSeconds   Timeout                `json:"TimeoutSeconds,omitempty"`
 }
 
 func (Task) StateType() StateType {

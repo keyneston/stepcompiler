@@ -8,7 +8,7 @@ import (
 const (
 	DynamoGetItemARN    = "arn:aws:states:::dynamodb:getItem"
 	DynamoPutItemARN    = "arn:aws:states:::dynamodb:putItem"
-	DynamoDeleteItemARN = "arn:aws:states:::dynamodb:putItem"
+	DynamoDeleteItemARN = "arn:aws:states:::dynamodb:deleteItem"
 )
 
 // DynamoGet is a wrapper around a task that allows calling GetItem from Dynamodb.
