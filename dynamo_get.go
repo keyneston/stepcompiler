@@ -6,19 +6,21 @@ import (
 )
 
 const (
-	DynamoGetItemARN = "arn:aws:states:::dynamodb:getItem"
-	DynamoPutItemARN = "arn:aws:states:::dynamodb:putItem"
+	DynamoGetItemARN    = "arn:aws:states:::dynamodb:getItem"
+	DynamoPutItemARN    = "arn:aws:states:::dynamodb:putItem"
+	DynamoDeleteItemARN = "arn:aws:states:::dynamodb:putItem"
 )
 
 // DynamoGet is a wrapper around a task that allows calling GetItem from Dynamodb.
 //
 // https://docs.aws.amazon.com/step-functions/latest/dg/connect-ddb.html
 type DynamoGet struct {
-	name    string
-	comment string
-	timeout time.Duration
-	next    State
-	catch   []*CatchClause
+	name       string
+	comment    string
+	timeout    time.Duration
+	next       State
+	catch      []*CatchClause
+	parameters map[string]interface{}
 }
 
 func NewDynamoGet(name string) *DynamoGet {
@@ -46,6 +48,7 @@ func (dg *DynamoGet) MarshalJSON() ([]byte, error) {
 		Comment:        dg.comment,
 		TimeoutSeconds: Timeout(dg.timeout),
 		Type:           dg.StateType(),
+		Parameters:     dg.parameters,
 	}
 
 	if dg.next != nil {

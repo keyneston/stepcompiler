@@ -3,6 +3,8 @@ package stepcompiler
 import (
 	"encoding/json"
 	"time"
+
+	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
 type DynamoPut struct {
@@ -24,12 +26,24 @@ func (DynamoPut) StateType() StateType {
 	return TaskType
 }
 
+func (dp *DynamoPut) ConditionExpression(expression string) *DynamoPut {
+	return dp.setParameter("ConditionExpression", expression)
+}
+
 func (dp *DynamoPut) TableName(tablename string) *DynamoPut {
+	return dp.setParameter("TableName", tablename)
+}
+
+func (dp *DynamoPut) Item(values map[string]*dynamodb.AttributeValue) *DynamoPut {
+	return dp.setParameter("Item", values)
+}
+
+func (dp *DynamoPut) setParameter(name string, value interface{}) *DynamoPut {
 	if dp.parameters == nil {
 		dp.parameters = make(map[string]interface{})
 	}
 
-	dp.parameters["TableName"] = tablename
+	dp.parameters[name] = value
 	return dp
 }
 
@@ -57,6 +71,7 @@ func (dg *DynamoPut) MarshalJSON() ([]byte, error) {
 		Comment:        dg.comment,
 		TimeoutSeconds: Timeout(dg.timeout),
 		Type:           dg.StateType(),
+		Parameters:     dg.parameters,
 	}
 
 	if dg.next != nil {
