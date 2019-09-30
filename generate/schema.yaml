@@ -1,7 +1,11 @@
 UniversalFields:
   Comment: 
     Type: string
-  Next: {"Type": "State"}
+  Next:
+    Type: State
+  End:
+    Type: bool
+    OutputOnly: true
 
 SharedFields:
   Resource:
@@ -11,6 +15,13 @@ StateTypes:
   Task: 
     IncludeFields:
       - Resource
-      - Next
+    StateType: "Task"
 
   DynamoGet:
+    StateType: "Task"
+
+  Succeed:
+    StateType: "Succeed"
+
+  Fail:
+    StateType: "Fail"

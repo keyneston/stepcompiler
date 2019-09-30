@@ -4,24 +4,14 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"path/filepath"
+	"strings"
 
+	j "github.com/dave/jennifer/jen"
 	"gopkg.in/yaml.v2"
 )
 
-type Schema struct {
-	UniversalFields map[string]FieldSchema `yaml:"UniversalFields"`
-	SharedFields    map[string]FieldSchema `yaml:"SharedFields"`
-	StateTypes      map[string]StateType   `yaml:"StateTypes"`
-}
-
-type StateType struct {
-	IncludeFields []string `yaml:"IncludeFields"`
-	Fields        map[string]FieldSchema
-}
-
-type FieldSchema struct {
-	Type string `yaml:"Type"`
-}
+const PkgName = "step"
 
 func main() {
 	schema, err := getSchema("generate/schema.yaml")
@@ -31,7 +21,22 @@ func main() {
 
 	json.NewEncoder(os.Stdout).Encode(schema)
 
-	GenerateStateType(schema)
+	for _, t := range schema.Types() {
+		f := j.NewFile(PkgName)
+		if err := GenerateStateType(f, t); err != nil {
+			log.Fatalf("Error generating type %q: %v", t.Name, err)
+		}
+
+		if err := GenerateOutputType(f, t); err != nil {
+			log.Fatalf("Error generating type %q: %v", t.Name, err)
+		}
+
+		if err := f.Save(
+			filepath.Join("output", strings.ToLower(t.Name)+".go"),
+		); err != nil {
+			log.Fatalf("Error saving code %q: %v", t.Name, err)
+		}
+	}
 }
 
 func getSchema(fileName string) (*Schema, error) {
@@ -51,9 +56,55 @@ func getSchema(fileName string) (*Schema, error) {
 	return schema, nil
 }
 
-func GenerateStateType(schema *Schema) error {
-	for name, t := range schema.StateTypes {
-		log.Printf("Generating %v: %#v", name, t)
+func GenerateStateType(f *j.File, t Type) error {
+	structFields := []j.Code{}
+	funcs := []j.Code{}
+
+	for name, info := range t.Fields {
+		if info.OutputOnly {
+			continue
+		}
+
+		structFields = append(structFields, j.Id(name).Id(info.Type))
+
+		setter := j.Func().Params(j.Id("self").Op("*").Id(t.Name)).Id("Set"+name).Params(
+			j.Id("input").Id(info.Type),
+		).Op("*").Id(t.Name).Block(
+			j.Id("self").Dot(name).Op("=").Id("input"),
+			j.Return().Id("self"),
+		)
+
+		funcs = append(funcs, setter)
 	}
+
+	structDec := j.Type().Id(t.Name).Struct(structFields...)
+	f.Add(structDec)
+	// If you add all the funcs at once (i.e. funcs...) jennifer doesn't add
+	// them as unique statements, but as one mega statement.
+	for _, fun := range funcs {
+		f.Add(fun)
+	}
+
+	return nil
+}
+
+func GenerateOutputType(f *j.File, t Type) error {
+	fields := []j.Code{}
+
+	structName := strings.ToLower(t.Name) + "Output"
+
+	for name, info := range t.Fields {
+		jsonName := info.JSONName
+		if jsonName == "" {
+			jsonName = name
+		}
+
+		fields = append(fields, j.Id(name).Id(info.Type).Tag(
+			map[string]string{"json": jsonName + ",omitempty"}))
+	}
+
+	structDec := j.Type().Id(structName).Struct(fields...)
+	f.Add(structDec)
+
 	return nil
 }
