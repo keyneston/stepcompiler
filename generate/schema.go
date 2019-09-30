@@ -12,17 +12,20 @@ type StateType struct {
 	IncludeFields []string               `yaml:"IncludeFields"`
 	Fields        map[string]FieldSchema `yaml:"Fields"`
 	StateType     string                 `yaml:"StateType"`
+	Comment       string                 `yaml:"Comment"`
 }
 
 type FieldSchema struct {
 	Type       string `yaml:"Type"`
 	JSONName   string `yaml:"JSONName"`
 	OutputOnly bool   `yaml:"OutputOnly"`
+	OutputType string `yaml:"OutputType"`
 }
 
 type Type struct {
-	Name   string
-	Fields map[string]FieldSchema
+	Name    string
+	Comment string
+	Fields  map[string]FieldSchema
 }
 
 func (s Schema) Types() []Type {
@@ -48,8 +51,9 @@ func (s Schema) Types() []Type {
 		}
 
 		results = append(results, Type{
-			Name:   name,
-			Fields: fields,
+			Name:    name,
+			Fields:  fields,
+			Comment: info.Comment,
 		})
 	}
 

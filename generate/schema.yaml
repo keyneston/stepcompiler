@@ -1,24 +1,43 @@
 UniversalFields:
   Comment: 
     Type: string
+
+SharedFields:
+  Resource:
+    Type: string
   Next:
     Type: State
   End:
     Type: bool
     OutputOnly: true
-
-SharedFields:
-  Resource:
-    Type: string
+  HeartbeatSeconds:
+    Type: time.Duration
+    OutputType: Timeout
 
 StateTypes:
   Task: 
+    Comment: |-
+      // Task is a state that does something. There are specific
+      // helper definitions for most common sub-types of a task, such as
+      // getting/putting/deleting from dynamodb or invoking a lambda and
+      // waiting for a callback.
+      // 
+      // See https://docs.aws.amazon.com/step-functions/latest/dg/amazon-states-language-task-state.html 
+      // for more details.
+    StateType: "Task"
     IncludeFields:
       - Resource
-    StateType: "Task"
+      - Next
+      - End
+      - HeartbeatSeconds
 
   DynamoGet:
     StateType: "Task"
+    IncludeFields:
+      - Resource
+      - Next
+      - End
+      - HeartbeatSeconds
 
   Succeed:
     StateType: "Succeed"

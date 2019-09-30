@@ -77,6 +77,11 @@ func GenerateStateType(f *j.File, t Type) error {
 		funcs = append(funcs, setter)
 	}
 
+	if t.Comment != "" {
+		structComment := j.Comment(t.Comment)
+		f.Add(structComment)
+	}
+
 	structDec := j.Type().Id(t.Name).Struct(structFields...)
 	f.Add(structDec)
 	// If you add all the funcs at once (i.e. funcs...) jennifer doesn't add
@@ -98,8 +103,12 @@ func GenerateOutputType(f *j.File, t Type) error {
 		if jsonName == "" {
 			jsonName = name
 		}
+		outputType := info.OutputType
+		if outputType == "" {
+			outputType = info.Type
+		}
 
-		fields = append(fields, j.Id(name).Id(info.Type).Tag(
+		fields = append(fields, j.Id(name).Id(outputType).Tag(
 			map[string]string{"json": jsonName + ",omitempty"}))
 	}
 
@@ -107,4 +116,7 @@ func GenerateOutputType(f *j.File, t Type) error {
 	f.Add(structDec)
 
 	return nil
+}
+
+func GenerateGatherStates() {
 }
