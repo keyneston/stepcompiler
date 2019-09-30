@@ -1,0 +1,16 @@
+UniversalFields:
+  Comment: 
+    Type: string
+  Next: {"Type": "State"}
+
+SharedFields:
+  Resource:
+    Type: string
+
+StateTypes:
+  Task: 
+    IncludeFields:
+      - Resource
+      - Next
+
+  DynamoGet:
