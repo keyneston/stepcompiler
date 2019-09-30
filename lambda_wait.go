@@ -51,6 +51,33 @@ func (t *LambdaWait) ResultPath(resultPath string) *LambdaWait {
 	return t
 }
 
+func (t *LambdaWait) Payload(payload map[string]interface{}) *LambdaWait {
+	for k, v := range payload {
+		t.AddPayload(k, v)
+	}
+
+	return t
+}
+
+func (t *LambdaWait) AddPayload(key string, value interface{}) *LambdaWait {
+	var currentPayload map[string]interface{}
+
+	if t.parameters == nil {
+		t.parameters = map[string]interface{}{}
+	}
+
+	currentPayloadInter, ok := t.parameters["Payload"]
+	if !ok {
+		currentPayload = map[string]interface{}{}
+		t.parameters["Payload"] = currentPayload
+	} else {
+		currentPayload = currentPayloadInter.(map[string]interface{})
+	}
+	currentPayload[key] = value
+
+	return t
+}
+
 func (t *LambdaWait) setParameter(name string, value interface{}) *LambdaWait {
 	if t.parameters == nil {
 		t.parameters = make(map[string]interface{})
