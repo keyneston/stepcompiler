@@ -16,12 +16,14 @@ type StateType struct {
 }
 
 type FieldSchema struct {
-	Comment    string `yaml:"Comment"`
-	Type       string `yaml:"Type"`
-	JSONName   string `yaml:"JSONName"`
-	OutputOnly bool   `yaml:"OutputOnly"`
-	OutputType string `yaml:"OutputType"`
-	SkipOutput bool   `yaml:"SkipOutput"`
+	Comment      string `yaml:"Comment"`
+	Type         string `yaml:"Type"`
+	JSONName     string `yaml:"JSONName"`
+	OutputOnly   bool   `yaml:"OutputOnly"`
+	OutputType   string `yaml:"OutputType"`
+	SkipOutput   bool   `yaml:"SkipOutput"`
+	SkipSetter   bool   `yaml:"SkipSetter"`
+	OutputGetter string `yaml:"OutputGetter"`
 }
 
 func (s Schema) Types() []Type {
@@ -47,9 +49,10 @@ func (s Schema) Types() []Type {
 		}
 
 		results = append(results, Type{
-			Name:    name,
-			Fields:  fields,
-			Comment: info.Comment,
+			Name:      name,
+			Fields:    fields,
+			Comment:   info.Comment,
+			StateType: info.StateType,
 		})
 	}
 

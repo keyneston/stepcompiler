@@ -7,6 +7,10 @@ UniversalFields:
   Type:
     Type: string
     OutputOnly: true
+  name:
+    Type: string
+    SkipSetter: true
+    SkipOutput: true
 
 SharedFields:
   Resource:
@@ -14,7 +18,16 @@ SharedFields:
   Next:
     Type: State
     OutputType: string
-    SkipOutput: true
+    OutputGetter: "self.Name()"
+
+  Catch:
+    Type: "*CatchClause" # TODO: this should be a list
+
+  Timeout:
+    Type: time.Duration
+    OutputType: Timeout
+
+
   HeartbeatSeconds:
     Comment: |-
       // HeartbeatSeconds is the number of seconds required between check-ins.
@@ -40,6 +53,8 @@ StateTypes:
       - Resource
       - Next
       - HeartbeatSeconds
+      - Timeout
+      - Catch
 
   DynamoGet:
     StateType: "Task"
@@ -47,6 +62,8 @@ StateTypes:
       - Resource
       - Next
       - HeartbeatSeconds
+      - Timeout
+      - Catch
 
   Succeed:
     StateType: "Succeed"
