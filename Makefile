@@ -15,7 +15,7 @@ clean:
 	rm -f _step/*.go
 
 show:
-	tail -n +1 output/*.go
+	tail -n +1 _output/*.go
 
 test:
 	go test -cover github.com/keyneston/stepcompiler/step
