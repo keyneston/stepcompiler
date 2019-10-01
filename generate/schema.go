@@ -16,6 +16,7 @@ type StateType struct {
 }
 
 type FieldSchema struct {
+	Name         string `yaml:"-"`
 	Comment      string `yaml:"Comment"`
 	Type         string `yaml:"Type"`
 	JSONName     string `yaml:"JSONName"`
@@ -27,6 +28,20 @@ type FieldSchema struct {
 	Array        bool   `yaml:"Array"`
 }
 
+func (f FieldSchema) GetJSONName() string {
+	if f.JSONName != "" {
+		return f.JSONName
+	}
+
+	return f.Name
+}
+
+func (f FieldSchema) getOuputTags() map[string]string {
+	return map[string]string{
+		"json": f.GetJSONName() + ",omitempty",
+	}
+}
+
 func (s Schema) Types() []Type {
 	results := []Type{}
 
@@ -34,19 +49,22 @@ func (s Schema) Types() []Type {
 		fields := map[string]FieldSchema{}
 
 		for k, v := range info.Fields {
+			v.Name = k
 			fields[k] = v
 		}
 
 		for k, v := range s.UniversalFields {
+			v.Name = k
 			fields[k] = v
 		}
 
 		for _, k := range info.IncludeFields {
-			var ok bool
-			fields[k], ok = s.SharedFields[k]
+			field, ok := s.SharedFields[k]
 			if !ok {
 				log.Fatalf("Can't find field %q for %q", k, name)
 			}
+			field.Name = k
+			fields[k] = field
 		}
 
 		results = append(results, Type{

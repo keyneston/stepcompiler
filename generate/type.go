@@ -21,6 +21,11 @@ type Type struct {
 	StateType string
 }
 
+func (t Type) HasField(name string) bool {
+	_, ok := t.Fields[name]
+	return ok
+}
+
 func (t Type) OutputStructName() string {
 	return strings.ToLower(t.Name) + "Output"
 
@@ -140,10 +145,6 @@ func (t Type) GenerateOutputStruct(f *j.File) error {
 			continue
 		}
 
-		jsonName := info.JSONName
-		if jsonName == "" {
-			jsonName = name
-		}
 		ot := info.OutputType
 		if ot == "" {
 			ot = info.Type
@@ -154,8 +155,7 @@ func (t Type) GenerateOutputStruct(f *j.File) error {
 			outputType = j.Op("[]").Add(outputType)
 		}
 
-		fields = append(fields, j.Id(name).Add(outputType).Tag(
-			map[string]string{"json": jsonName + ",omitempty"}))
+		fields = append(fields, j.Id(name).Add(outputType).Tag(info.getOuputTags()))
 	}
 
 	structDec := j.Type().Id(structName).Struct(fields...)
@@ -191,7 +191,7 @@ func (t Type) GenerateMarshalJSON(f *j.File) error {
 	)
 
 	// Handle the "special" fields Next and End
-	if _, ok := t.Fields["Next"]; ok {
+	if t.HasField("Next") {
 		selfField := j.Id(Self).Dot("next")
 
 		setNext := j.If(
@@ -216,13 +216,29 @@ func (t Type) GenerateMarshalJSON(f *j.File) error {
 }
 
 func (t Type) GenerateGatherStates(f *j.File) error {
+	varName := j.Id("states")
+	b := GenBuilder{}
+
+	b.Add(varName.Clone().Op(":=").Id("[]State").Values(j.Id(Self)))
+
+	if t.HasField("Next") {
+		ifStmt := j.If(j.Id(Self).Dot("next").Op("!=").Nil()).Block(
+			varName.Clone().Op("=").Append(
+				varName.Clone(),
+				j.Id(Self).Dot("next"),
+			),
+		)
+
+		b.Add(ifStmt)
+	}
+
+	b.Add(j.Return().Add(varName.Clone()))
+
 	gatherFunc := j.Func().Params(
 		j.Id(Self).Id(t.Name),
 	).Id(GatherFunction).Params().Params(
 		j.Op("[]").Id("State"),
-	).Block(
-		j.Return().Op("[]").Id("State").Values(),
-	)
+	).Block(b.Get()...)
 
 	f.Add(gatherFunc)
 	return nil
