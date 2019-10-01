@@ -83,8 +83,6 @@ func TestTaskCatchGathered(t *testing.T) {
 func TestTaskTimeout(t *testing.T) {
 	step := NewBuilder().StartAt(NewTask("Foo").Timeout(time.Minute * 5))
 
-	// TODO: add test for sub 1 second.
-
 	expected := `
 {
     "StartAt": "Foo",

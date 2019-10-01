@@ -31,7 +31,7 @@ func (self *LambdaWait) Comment(input string) *LambdaWait {
 // If this time elapses without a check-in then the task is considered
 // failed.
 //
-// Any time less than one second is rounded up to one second.
+// Any time less than one second will induce a panic.
 func (self *LambdaWait) Heartbeat(input time.Duration) *LambdaWait {
 	self.heartbeat = input
 	return self
