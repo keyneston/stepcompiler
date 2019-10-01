@@ -18,6 +18,9 @@ func (self *DynamoGet) Catch(input ...*CatchClause) *DynamoGet {
 	self.catch = append(self.catch, input...)
 	return self
 }
+func (self *DynamoGet) ChainableNext(input State) {
+	self.Next(input)
+}
 func (self *DynamoGet) Comment(input string) *DynamoGet {
 	self.comment = input
 	return self

@@ -80,7 +80,7 @@ func (t Type) GenerateStruct(f *j.File) error {
 
 	for _, name := range t.SortedFieldsKeys() {
 		info := t.Fields[name]
-		if info.OutputOnly {
+		if info.OutputOnly || info.Alias != "" {
 			continue
 		}
 
@@ -90,9 +90,11 @@ func (t Type) GenerateStruct(f *j.File) error {
 		}
 
 		structFields = append(structFields, j.Id(strings.ToLower(name)).Add(structType))
+	}
 
-		// Set the struct field, but skip adding a setter if SkipSetter is set.
-		if info.SkipSetter {
+	for _, name := range t.SortedFieldsKeys() {
+		info := t.Fields[name]
+		if info.OutputOnly || info.SkipSetter {
 			continue
 		}
 
@@ -135,17 +137,29 @@ func (t Type) generateSetter(name string, schema FieldSchema) j.Code {
 	inputType := GetQual(schema.Type)
 	assignment := selfField.Clone().Op("=").Id("input")
 
-	if schema.Array {
+	if schema.Alias != "" {
+		assignment = j.Id(Self).Dot(schema.Alias).Call(j.Id("input"))
+
+	} else if schema.Array {
 		inputType = j.Op("...").Add(inputType)
 		assignment = selfField.Clone().Op("=").Append(selfField.Clone(), j.Id("input").Op("..."))
 	}
 
 	setter := j.Func().Params(j.Id(Self).Op("*").Id(t.Name)).Id(name).Params(
 		j.Id("input").Add(inputType),
-	).Op("*").Id(t.Name).Block(
-		assignment,
-		j.Return().Id(Self),
 	)
+
+	if !schema.NonBuilderSetter {
+		setter.Add(j.Op("*").Id(t.Name)).Block(
+			assignment,
+			j.Return().Id(Self),
+		)
+	} else {
+		setter.Add(j.Block(
+			assignment,
+		))
+	}
+
 	return setter
 }
 

@@ -19,6 +19,9 @@ func (self *LambdaWait) Catch(input ...*CatchClause) *LambdaWait {
 	self.catch = append(self.catch, input...)
 	return self
 }
+func (self *LambdaWait) ChainableNext(input State) {
+	self.Next(input)
+}
 func (self *LambdaWait) Comment(input string) *LambdaWait {
 	self.comment = input
 	return self

@@ -21,6 +21,12 @@ SharedFields:
     OutputType: string
     OutputValue: "\"\""
 
+  ChainableNext:
+    Alias: Next
+    Type: State
+    NonBuilderSetter: true
+    SkipOutput: true
+
   Catch:
     Type: "*CatchClause" # TODO: this should be a list
     Array: true
@@ -56,6 +62,7 @@ StateTypes:
     IncludeFields:
       - Resource
       - Next
+      - ChainableNext
       - Heartbeat
       - Timeout
       - Catch
@@ -64,6 +71,7 @@ StateTypes:
     StateType: "Task"
     IncludeFields:
       - Next
+      - ChainableNext
       - Heartbeat
       - Timeout
       - Catch
@@ -78,6 +86,7 @@ StateTypes:
     IncludeFields:
       - Resource
       - Next
+      - ChainableNext
       - Heartbeat
       - Timeout
       - Catch
@@ -92,6 +101,7 @@ StateTypes:
     IncludeFields:
       - Resource
       - Next
+      - ChainableNext
       - Heartbeat
       - Timeout
       - Catch
@@ -106,6 +116,7 @@ StateTypes:
     IncludeFields:
       - Resource
       - Next
+      - ChainableNext
       - Heartbeat
       - Timeout
       - Catch
@@ -114,6 +125,7 @@ StateTypes:
     StateType: "Pass"
     IncludeFields:
       - Next
+      - ChainableNext
 
   Succeed:
     StateType: "Succeed"

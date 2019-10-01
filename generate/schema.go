@@ -16,16 +16,18 @@ type StateType struct {
 }
 
 type FieldSchema struct {
-	Name        string `yaml:"-"`
-	Comment     string `yaml:"Comment"`
-	Type        string `yaml:"Type"`
-	JSONName    string `yaml:"JSONName"`
-	OutputOnly  bool   `yaml:"OutputOnly"`
-	OutputType  string `yaml:"OutputType"`
-	SkipOutput  bool   `yaml:"SkipOutput"`
-	SkipSetter  bool   `yaml:"SkipSetter"`
-	OutputValue string `yaml:"OutputValue"`
-	Array       bool   `yaml:"Array"`
+	Name             string `yaml:"-"`
+	Comment          string `yaml:"Comment"`
+	Type             string `yaml:"Type"`
+	JSONName         string `yaml:"JSONName"`
+	OutputOnly       bool   `yaml:"OutputOnly"`
+	OutputType       string `yaml:"OutputType"`
+	SkipOutput       bool   `yaml:"SkipOutput"`
+	SkipSetter       bool   `yaml:"SkipSetter"`
+	OutputValue      string `yaml:"OutputValue"`
+	Array            bool   `yaml:"Array"`
+	NonBuilderSetter bool   `yaml:"NonBuilderSetter"`
+	Alias            string `yaml:"Alias"`
 }
 
 func (f FieldSchema) GetJSONName() string {

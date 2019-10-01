@@ -19,6 +19,9 @@ func (self *DynamoDelete) Catch(input ...*CatchClause) *DynamoDelete {
 	self.catch = append(self.catch, input...)
 	return self
 }
+func (self *DynamoDelete) ChainableNext(input State) {
+	self.Next(input)
+}
 func (self *DynamoDelete) Comment(input string) *DynamoDelete {
 	self.comment = input
 	return self

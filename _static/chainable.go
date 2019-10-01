@@ -5,19 +5,17 @@ package step
 type ChainableState interface {
 	State
 
-	//NextChainable(State)
+	ChainableNext(State)
 }
 
-// TODO: chainable state
+func ChainStates(list []ChainableState) State {
+	if len(list) == 0 {
+		panic("can't handle an empty list")
+	}
 
-// func ChainStates(list []ChainableState) State {
-// 	if len(list) == 0 {
-// 		panic("can't handle an empty list")
-// 	}
-//
-// 	for i := 1; i < (len(list)); i++ {
-// 		list[i-1].NextChainable(list[i])
-// 	}
-//
-// 	return list[0]
-// }
+	for i := 1; i < (len(list)); i++ {
+		list[i-1].ChainableNext(list[i])
+	}
+
+	return list[0]
+}

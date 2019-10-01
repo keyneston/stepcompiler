@@ -8,6 +8,9 @@ type Pass struct {
 	name    string
 }
 
+func (self *Pass) ChainableNext(input State) {
+	self.Next(input)
+}
 func (self *Pass) Comment(input string) *Pass {
 	self.comment = input
 	return self

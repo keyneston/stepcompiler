@@ -26,6 +26,9 @@ func (self *Task) Catch(input ...*CatchClause) *Task {
 	self.catch = append(self.catch, input...)
 	return self
 }
+func (self *Task) ChainableNext(input State) {
+	self.Next(input)
+}
 func (self *Task) Comment(input string) *Task {
 	self.comment = input
 	return self
