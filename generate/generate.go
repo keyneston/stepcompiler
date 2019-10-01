@@ -30,7 +30,7 @@ func main() {
 		}
 
 		if err := f.Save(
-			filepath.Join("output", t.FileName()),
+			filepath.Join("_output", t.FileName()),
 		); err != nil {
 			log.Fatalf("Error saving code %q: %v", t.Name, err)
 		}
