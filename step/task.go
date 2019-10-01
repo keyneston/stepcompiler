@@ -13,29 +13,21 @@ import (
 // See https://docs.aws.amazon.com/step-functions/latest/dg/amazon-states-language-task-state.html
 // for more details.
 type Task struct {
-	comment   string
 	catch     []*CatchClause
-	name      string
-	resource  string
-	next      State
+	comment   string
 	heartbeat time.Duration
+	next      State
+	resource  string
 	timeout   time.Duration
+	name      string
 }
 
-func (self *Task) Comment(input string) *Task {
-	self.comment = input
-	return self
-}
 func (self *Task) Catch(input ...*CatchClause) *Task {
 	self.catch = append(self.catch, input...)
 	return self
 }
-func (self *Task) Resource(input string) *Task {
-	self.resource = input
-	return self
-}
-func (self *Task) Next(input State) *Task {
-	self.next = input
+func (self *Task) Comment(input string) *Task {
+	self.comment = input
 	return self
 }
 
@@ -46,6 +38,14 @@ func (self *Task) Next(input State) *Task {
 // Any time less than one second is rounded up to one second.
 func (self *Task) Heartbeat(input time.Duration) *Task {
 	self.heartbeat = input
+	return self
+}
+func (self *Task) Next(input State) *Task {
+	self.next = input
+	return self
+}
+func (self *Task) Resource(input string) *Task {
+	self.resource = input
 	return self
 }
 func (self *Task) Timeout(input time.Duration) *Task {
@@ -89,14 +89,14 @@ func (self Task) GatherStates() []State {
 }
 
 type taskOutput struct {
+	Catch     []*CatchClause `json:"Catch,omitempty"`
 	Comment   string         `json:"Comment,omitempty"`
 	End       bool           `json:"End,omitempty"`
-	Type      StateType      `json:"Type,omitempty"`
-	Resource  string         `json:"Resource,omitempty"`
-	Next      string         `json:"Next,omitempty"`
 	Heartbeat Timeout        `json:"HeartbeatSeconds,omitempty"`
+	Next      string         `json:"Next,omitempty"`
+	Resource  string         `json:"Resource,omitempty"`
 	Timeout   Timeout        `json:"TimeoutSeconds,omitempty"`
-	Catch     []*CatchClause `json:"Catch,omitempty"`
+	Type      StateType      `json:"Type,omitempty"`
 }
 
 func (self Task) StateType() StateType {

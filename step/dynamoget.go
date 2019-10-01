@@ -6,13 +6,22 @@ import (
 )
 
 type DynamoGet struct {
-	heartbeat time.Duration
-	comment   string
-	resource  string
-	next      State
-	timeout   time.Duration
 	catch     []*CatchClause
+	comment   string
+	heartbeat time.Duration
+	next      State
+	resource  string
+	timeout   time.Duration
 	name      string
+}
+
+func (self *DynamoGet) Catch(input ...*CatchClause) *DynamoGet {
+	self.catch = append(self.catch, input...)
+	return self
+}
+func (self *DynamoGet) Comment(input string) *DynamoGet {
+	self.comment = input
+	return self
 }
 
 // Heartbeat is the number of seconds required between check-ins.
@@ -24,24 +33,16 @@ func (self *DynamoGet) Heartbeat(input time.Duration) *DynamoGet {
 	self.heartbeat = input
 	return self
 }
-func (self *DynamoGet) Comment(input string) *DynamoGet {
-	self.comment = input
+func (self *DynamoGet) Next(input State) *DynamoGet {
+	self.next = input
 	return self
 }
 func (self *DynamoGet) Resource(input string) *DynamoGet {
 	self.resource = input
 	return self
 }
-func (self *DynamoGet) Next(input State) *DynamoGet {
-	self.next = input
-	return self
-}
 func (self *DynamoGet) Timeout(input time.Duration) *DynamoGet {
 	self.timeout = input
-	return self
-}
-func (self *DynamoGet) Catch(input ...*CatchClause) *DynamoGet {
-	self.catch = append(self.catch, input...)
 	return self
 }
 func NewDynamoGet(name string) *DynamoGet {
@@ -81,14 +82,14 @@ func (self DynamoGet) GatherStates() []State {
 }
 
 type dynamogetOutput struct {
-	Resource  string         `json:"Resource,omitempty"`
-	Next      string         `json:"Next,omitempty"`
-	Timeout   Timeout        `json:"TimeoutSeconds,omitempty"`
 	Catch     []*CatchClause `json:"Catch,omitempty"`
-	End       bool           `json:"End,omitempty"`
-	Type      StateType      `json:"Type,omitempty"`
-	Heartbeat Timeout        `json:"HeartbeatSeconds,omitempty"`
 	Comment   string         `json:"Comment,omitempty"`
+	End       bool           `json:"End,omitempty"`
+	Heartbeat Timeout        `json:"HeartbeatSeconds,omitempty"`
+	Next      string         `json:"Next,omitempty"`
+	Resource  string         `json:"Resource,omitempty"`
+	Timeout   Timeout        `json:"TimeoutSeconds,omitempty"`
+	Type      StateType      `json:"Type,omitempty"`
 }
 
 func (self DynamoGet) StateType() StateType {

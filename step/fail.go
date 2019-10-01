@@ -3,8 +3,8 @@ package step
 import "encoding/json"
 
 type Fail struct {
-	name    string
 	comment string
+	name    string
 }
 
 func (self *Fail) Comment(input string) *Fail {
@@ -30,9 +30,9 @@ func (self Fail) GatherStates() []State {
 }
 
 type failOutput struct {
-	Type    StateType `json:"Type,omitempty"`
 	Comment string    `json:"Comment,omitempty"`
 	End     bool      `json:"End,omitempty"`
+	Type    StateType `json:"Type,omitempty"`
 }
 
 func (self Fail) StateType() StateType {

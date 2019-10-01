@@ -1,6 +1,7 @@
 package main
 
 import (
+	"sort"
 	"strings"
 
 	j "github.com/dave/jennifer/jen"
@@ -19,6 +20,17 @@ type Type struct {
 	Comment   string
 	Fields    map[string]FieldSchema
 	StateType string
+}
+
+func (t Type) SortedFieldsKeys() []string {
+	keys := []string{}
+
+	for k, _ := range t.Fields {
+		keys = append(keys, k)
+	}
+
+	sort.Strings(keys)
+	return keys
 }
 
 func (t Type) HasField(name string) bool {
@@ -66,7 +78,8 @@ func (t Type) GenerateStruct(f *j.File) error {
 	structFields := []j.Code{}
 	funcs := []j.Code{}
 
-	for name, info := range t.Fields {
+	for _, name := range t.SortedFieldsKeys() {
+		info := t.Fields[name]
 		if info.OutputOnly {
 			continue
 		}
@@ -140,7 +153,8 @@ func (t Type) GenerateOutputStruct(f *j.File) error {
 	fields := []j.Code{}
 
 	structName := t.OutputStructName()
-	for name, info := range t.Fields {
+	for _, name := range t.SortedFieldsKeys() {
+		info := t.Fields[name]
 		if info.SkipOutput {
 			continue
 		}

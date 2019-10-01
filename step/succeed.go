@@ -3,8 +3,8 @@ package step
 import "encoding/json"
 
 type Succeed struct {
-	name    string
 	comment string
+	name    string
 }
 
 func (self *Succeed) Comment(input string) *Succeed {
