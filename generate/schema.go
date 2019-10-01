@@ -16,10 +16,12 @@ type StateType struct {
 }
 
 type FieldSchema struct {
+	Comment    string `yaml:"Comment"`
 	Type       string `yaml:"Type"`
 	JSONName   string `yaml:"JSONName"`
 	OutputOnly bool   `yaml:"OutputOnly"`
 	OutputType string `yaml:"OutputType"`
+	SkipOutput bool   `yaml:"SkipOutput"`
 }
 
 func (s Schema) Types() []Type {

@@ -6,6 +6,10 @@ import (
 	j "github.com/dave/jennifer/jen"
 )
 
+const (
+	JSONPackage = "encoding/json"
+)
+
 type GenerateFunction func(*j.File) error
 
 type Type struct {
@@ -49,6 +53,10 @@ func (t Type) GenerateStruct(f *j.File) error {
 			continue
 		}
 
+		if info.Comment != "" {
+			funcs = append(funcs, j.Comment(info.Comment))
+		}
+
 		structFields = append(structFields, j.Id(name).Add(GetQual(info.Type)))
 
 		setter := j.Func().Params(j.Id(Self).Op("*").Id(t.Name)).Id("Set"+name).Params(
@@ -67,6 +75,7 @@ func (t Type) GenerateStruct(f *j.File) error {
 	}
 
 	structDec := j.Type().Id(t.Name).Struct(structFields...)
+
 	f.Add(structDec)
 	// If you add all the funcs at once (i.e. funcs...) jennifer doesn't add
 	// them as unique statements, but as one mega statement.
@@ -103,9 +112,49 @@ func (t Type) GenerateOutputStruct(f *j.File) error {
 
 func (t Type) GenerateMarshalJSON(f *j.File) error {
 	body := []j.Code{}
-	body = append(body, j.Return().List(j.Nil(), j.Nil()))
+	varName := "out"
 
-	fun := j.Func().Params(j.Id(Self).Op("*").Id(t.Name)).Id("MarshalJSON").Params().Params(
+	straightCopies := []j.Code{}
+	for name, schema := range t.Fields {
+		if schema.OutputOnly || schema.SkipOutput {
+			continue
+		}
+
+		selfField := j.Id(Self + "." + name)
+
+		field := j.Id(name).Op(":")
+		if schema.OutputType != "" && schema.OutputType != schema.Type {
+			field.Add(
+				j.Id(schema.OutputType).Params(selfField),
+			)
+		} else {
+			field.Add(selfField)
+		}
+
+		straightCopies = append(straightCopies, field)
+	}
+
+	body = append(body,
+		j.Id(varName).Op(":=").Op("&").Id(t.OutputStructName()).Values(straightCopies...),
+	)
+
+	// Handle the "special" fields Next and End
+	if _, ok := t.Fields["Next"]; ok {
+		selfField := j.Id(Self + ".Next")
+
+		setNext := j.If(selfField.Clone().Op("!=").Nil()).Block(
+			j.Id(varName).Dot("Next").Op("=").Add(selfField.Clone()).Dot("Name").Call(),
+		).Else().Block(
+			j.Id(varName).Dot("End").Op("=").True(),
+		)
+
+		body = append(body, setNext)
+	}
+
+	// Set the return to json.Marshal(out)
+	body = append(body, j.Return().Qual(JSONPackage, "Marshal").Call(j.Id("out")))
+
+	fun := j.Func().Params(j.Id(Self).Id(t.Name)).Id("MarshalJSON").Params().Params(
 		j.Id("[]byte"), j.Error(),
 	).Block(body...)
 	f.Add(fun)

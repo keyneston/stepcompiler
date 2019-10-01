@@ -1,16 +1,26 @@
 UniversalFields:
   Comment: 
     Type: string
+  End:
+    Type: bool
+    OutputOnly: true
+  Type:
+    Type: string
+    OutputOnly: true
 
 SharedFields:
   Resource:
     Type: string
   Next:
     Type: State
-  End:
-    Type: bool
-    OutputOnly: true
+    SkipOutput: true
   HeartbeatSeconds:
+    Comment: |-
+      // HeartbeatSeconds is the number of seconds required between check-ins.
+      // If this time elapses without a check-in then the task is considered
+      // failed.
+      //
+      // Any time less than one second is rounded up to one second.
     Type: time.Duration
     OutputType: Timeout
 
@@ -28,7 +38,6 @@ StateTypes:
     IncludeFields:
       - Resource
       - Next
-      - End
       - HeartbeatSeconds
 
   DynamoGet:
@@ -36,7 +45,6 @@ StateTypes:
     IncludeFields:
       - Resource
       - Next
-      - End
       - HeartbeatSeconds
 
   Succeed:
