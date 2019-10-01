@@ -7,12 +7,12 @@ generate:
 
 merge:
 	mkdir -p step/
-	cp static/*.go step/
-	cp output/*.go step/
+	cp _static/*.go step/
+	cp _output/*.go step/
 
 clean:
-	rm -f output/*.go
-	rm -f step/*.go
+	rm -f _output/*.go
+	rm -f _step/*.go
 
 show:
 	tail -n +1 output/*.go
