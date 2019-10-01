@@ -1,4 +1,4 @@
-package stepcompiler
+package step
 
 import (
 	"testing"
@@ -6,26 +6,24 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPassImplements(t *testing.T) {
-	assert.Implements(t, (*State)(nil), &Pass{})
-	assert.Implements(t, (*ChainableState)(nil), &Pass{})
+func TestSucceedIsState(t *testing.T) {
+	assert.Implements(t, (*State)(nil), &Succeed{})
 }
 
-func TestPass(t *testing.T) {
+func TestSucceed(t *testing.T) {
 	step := NewBuilder()
-	pass := NewPass("Foo").Next(NewPass("Bar"))
+	pass := NewPass("Foo").Next(NewSucceed("Success"))
 
 	expected := `
 {
     "StartAt": "Foo",
     "States": {
-        "Bar": {
-            "Type": "Pass",
-            "End": true
+        "Success": {
+            "Type": "Succeed"
         },
         "Foo": {
             "Type": "Pass",
-            "Next": "Bar"
+            "Next": "Success"
         }
     }
 }`

@@ -1,0 +1,135 @@
+UniversalFields:
+  Comment: 
+    Type: string
+  End:
+    Type: bool
+    OutputOnly: true
+  Type:
+    Type: StateType
+    OutputOnly: true
+    OutputValue: "self.StateType()"
+  name:
+    Type: string
+    SkipSetter: true
+    SkipOutput: true
+
+SharedFields:
+  Resource:
+    Type: string
+  Next:
+    Type: State
+    OutputType: string
+    OutputValue: "\"\""
+
+  ChainableNext:
+    Alias: Next
+    Type: State
+    NonBuilderSetter: true
+    SkipOutput: true
+
+  Catch:
+    Type: "*CatchClause" # TODO: this should be a list
+    Array: true
+
+  Timeout:
+    Type: time.Duration
+    OutputType: Timeout
+    JSONName: "TimeoutSeconds"
+
+
+  Heartbeat:
+    Comment: |-
+      // Heartbeat is the number of seconds required between check-ins.
+      // If this time elapses without a check-in then the task is considered
+      // failed.
+      //
+      // Any time less than one second is rounded up to one second.
+    Type: time.Duration
+    OutputType: Timeout
+    JSONName: HeartbeatSeconds
+
+StateTypes:
+  Task: 
+    Comment: |-
+      // Task is a state that does something. There are specific
+      // helper definitions for most common sub-types of a task, such as
+      // getting/putting/deleting from dynamodb or invoking a lambda and
+      // waiting for a callback.
+      // 
+      // See https://docs.aws.amazon.com/step-functions/latest/dg/amazon-states-language-task-state.html 
+      // for more details.
+    StateType: "Task"
+    IncludeFields:
+      - Resource
+      - Next
+      - ChainableNext
+      - Heartbeat
+      - Timeout
+      - Catch
+
+  DynamoGet:
+    StateType: "Task"
+    IncludeFields:
+      - Next
+      - ChainableNext
+      - Heartbeat
+      - Timeout
+      - Catch
+    Fields:
+      Resource:
+        OutputOnly: true
+        Type: string
+        OutputValue: '"arn:aws:states:::dynamodb:getItem"'
+
+  DynamoDelete:
+    StateType: "Task"
+    IncludeFields:
+      - Resource
+      - Next
+      - ChainableNext
+      - Heartbeat
+      - Timeout
+      - Catch
+    Fields:
+      Resource:
+        OutputOnly: true
+        Type: string
+        OutputValue: '"arn:aws:states:::dynamodb:deleteItem"'
+
+  DynamoPut:
+    StateType: "Task"
+    IncludeFields:
+      - Resource
+      - Next
+      - ChainableNext
+      - Heartbeat
+      - Timeout
+      - Catch
+    Fields:
+      Resource:
+        OutputOnly: true
+        Type: string
+        OutputValue: '"arn:aws:states:::dynamodb:putItem"'
+
+  LambdaWait:
+    StateType: "Task"
+    IncludeFields:
+      - Resource
+      - Next
+      - ChainableNext
+      - Heartbeat
+      - Timeout
+      - Catch
+  
+  Pass:
+    StateType: "Pass"
+    IncludeFields:
+      - Next
+      - ChainableNext
+
+  Succeed:
+    StateType: "Succeed"
+
+  Fail:
+    StateType: "Fail"
+

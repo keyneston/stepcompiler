@@ -1,11 +1,11 @@
-package stepcompiler
+package step
 
 // This idea sadly doesn't work while maintaining the builder pattern.
 //
 type ChainableState interface {
 	State
 
-	NextChainable(State)
+	ChainableNext(State)
 }
 
 func ChainStates(list []ChainableState) State {
@@ -14,7 +14,7 @@ func ChainStates(list []ChainableState) State {
 	}
 
 	for i := 1; i < (len(list)); i++ {
-		list[i-1].NextChainable(list[i])
+		list[i-1].ChainableNext(list[i])
 	}
 
 	return list[0]
