@@ -28,7 +28,7 @@ SharedFields:
     SkipOutput: true
 
   Catch:
-    Type: "*CatchClause" # TODO: this should be a list
+    Type: "*CatchClause"
     Array: true
 
   Timeout:
