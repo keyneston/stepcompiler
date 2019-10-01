@@ -1,21 +1,15 @@
-.PHONY: all generate clean show test merge
+.PHONY: all generate clean show test
 
-all: clean generate show merge test
+all: clean generate show test
 
 generate:
 	go run github.com/keyneston/stepcompiler/generate
 
-merge:
-	mkdir -p step/
-	cp _static/*.go step/
-	cp _output/*.go step/
-
 clean:
-	rm -f _output/*.go
-	rm -f _step/*.go
+	rm -f step/gen_*.go
 
 show:
-	tail -n +1 _output/*.go
+	tail -n +1 step/gen_*.go
 
 test:
 	go test -cover github.com/keyneston/stepcompiler/step
