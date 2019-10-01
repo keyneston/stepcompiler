@@ -5,7 +5,7 @@ UniversalFields:
     Type: bool
     OutputOnly: true
   Type:
-    Type: string
+    Type: StateType
     OutputOnly: true
     OutputGetter: "self.StateType()"
   name:

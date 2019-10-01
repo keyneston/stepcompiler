@@ -100,5 +100,5 @@ func TestTaskTimeout(t *testing.T) {
 
 	output, err := step.Render()
 	assert.NoError(t, err)
-	assert.JSONEq(t, string(output), expected)
+	assert.JSONEq(t, expected, string(output))
 }

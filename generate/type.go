@@ -170,7 +170,7 @@ func (t Type) GenerateMarshalJSON(f *j.File) error {
 
 	straightCopies := j.Dict{}
 	for name, schema := range t.Fields {
-		if schema.OutputOnly || schema.SkipOutput {
+		if (schema.OutputOnly && schema.OutputGetter == "") || schema.SkipOutput {
 			continue
 		}
 
