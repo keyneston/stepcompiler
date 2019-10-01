@@ -7,6 +7,7 @@ UniversalFields:
   Type:
     Type: string
     OutputOnly: true
+    OutputGetter: "self.StateType()"
   name:
     Type: string
     SkipSetter: true
@@ -18,25 +19,28 @@ SharedFields:
   Next:
     Type: State
     OutputType: string
-    OutputGetter: "self.Name()"
+    OutputGetter: "\"\""
 
   Catch:
     Type: "*CatchClause" # TODO: this should be a list
+    Array: true
 
   Timeout:
     Type: time.Duration
     OutputType: Timeout
+    JSONName: "TimeoutSeconds"
 
 
-  HeartbeatSeconds:
+  Heartbeat:
     Comment: |-
-      // HeartbeatSeconds is the number of seconds required between check-ins.
+      // Heartbeat is the number of seconds required between check-ins.
       // If this time elapses without a check-in then the task is considered
       // failed.
       //
       // Any time less than one second is rounded up to one second.
     Type: time.Duration
     OutputType: Timeout
+    JSONName: HeartbeatSeconds
 
 StateTypes:
   Task: 
@@ -52,7 +56,7 @@ StateTypes:
     IncludeFields:
       - Resource
       - Next
-      - HeartbeatSeconds
+      - Heartbeat
       - Timeout
       - Catch
 
@@ -61,7 +65,7 @@ StateTypes:
     IncludeFields:
       - Resource
       - Next
-      - HeartbeatSeconds
+      - Heartbeat
       - Timeout
       - Catch
 

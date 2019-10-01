@@ -24,6 +24,7 @@ type FieldSchema struct {
 	SkipOutput   bool   `yaml:"SkipOutput"`
 	SkipSetter   bool   `yaml:"SkipSetter"`
 	OutputGetter string `yaml:"OutputGetter"`
+	Array        bool   `yaml:"Array"`
 }
 
 func (s Schema) Types() []Type {

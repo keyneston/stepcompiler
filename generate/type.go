@@ -34,6 +34,9 @@ func (t Type) NewFuncName() string {
 	return "New" + t.Name
 }
 
+func (t Type) genInType() {
+}
+
 func (t Type) GenerateAll(f *j.File) error {
 	order := []GenerateFunction{
 		t.GenerateStruct,
@@ -63,7 +66,12 @@ func (t Type) GenerateStruct(f *j.File) error {
 			continue
 		}
 
-		structFields = append(structFields, j.Id(strings.ToLower(name)).Add(GetQual(info.Type)))
+		structType := GetQual(info.Type)
+		if info.Array {
+			structType = j.Op("[]").Add(structType)
+		}
+
+		structFields = append(structFields, j.Id(strings.ToLower(name)).Add(structType))
 
 		// Set the struct field, but skip adding a setter if SkipSetter is set.
 		if info.SkipSetter {
@@ -74,14 +82,7 @@ func (t Type) GenerateStruct(f *j.File) error {
 			funcs = append(funcs, j.Comment(info.Comment))
 		}
 
-		setter := j.Func().Params(j.Id(Self).Op("*").Id(t.Name)).Id(name).Params(
-			j.Id("input").Add(GetQual(info.Type)),
-		).Op("*").Id(t.Name).Block(
-			j.Id(Self).Dot(strings.ToLower(name)).Op("=").Id("input"),
-			j.Return().Id(Self),
-		)
-
-		funcs = append(funcs, setter)
+		funcs = append(funcs, t.generateSetter(name, info))
 	}
 
 	if t.Comment != "" {
@@ -111,6 +112,25 @@ func (t Type) GenerateNewFunc(f *j.File) error {
 	return nil
 }
 
+func (t Type) generateSetter(name string, schema FieldSchema) j.Code {
+	selfField := j.Id(Self).Dot(strings.ToLower(name))
+	inputType := GetQual(schema.Type)
+	assignment := selfField.Clone().Op("=").Id("input")
+
+	if schema.Array {
+		inputType = j.Op("...").Add(inputType)
+		assignment = selfField.Clone().Op("=").Append(selfField.Clone(), j.Id("input").Op("..."))
+	}
+
+	setter := j.Func().Params(j.Id(Self).Op("*").Id(t.Name)).Id(name).Params(
+		j.Id("input").Add(inputType),
+	).Op("*").Id(t.Name).Block(
+		assignment,
+		j.Return().Id(Self),
+	)
+	return setter
+}
+
 func (t Type) GenerateOutputStruct(f *j.File) error {
 	fields := []j.Code{}
 
@@ -124,12 +144,17 @@ func (t Type) GenerateOutputStruct(f *j.File) error {
 		if jsonName == "" {
 			jsonName = name
 		}
-		outputType := info.OutputType
-		if outputType == "" {
-			outputType = info.Type
+		ot := info.OutputType
+		if ot == "" {
+			ot = info.Type
 		}
 
-		fields = append(fields, j.Id(name).Id(outputType).Tag(
+		outputType := j.Id(ot)
+		if info.Array {
+			outputType = j.Op("[]").Add(outputType)
+		}
+
+		fields = append(fields, j.Id(name).Add(outputType).Tag(
 			map[string]string{"json": jsonName + ",omitempty"}))
 	}
 
@@ -167,9 +192,11 @@ func (t Type) GenerateMarshalJSON(f *j.File) error {
 
 	// Handle the "special" fields Next and End
 	if _, ok := t.Fields["Next"]; ok {
-		selfField := j.Id(Self + ".next")
+		selfField := j.Id(Self).Dot("next")
 
-		setNext := j.If(selfField.Clone().Op("!=").Nil()).Block(
+		setNext := j.If(
+			selfField.Clone().Op("!=").Nil(),
+		).Block(
 			j.Id(varName).Dot("Next").Op("=").Add(selfField.Clone()).Dot("Name").Call(),
 		).Else().Block(
 			j.Id(varName).Dot("End").Op("=").True(),
