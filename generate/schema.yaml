@@ -13,6 +13,7 @@ SharedFields:
     Type: string
   Next:
     Type: State
+    OutputType: string
     SkipOutput: true
   HeartbeatSeconds:
     Comment: |-

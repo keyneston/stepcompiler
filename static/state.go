@@ -1,4 +1,4 @@
-package stepcompiler
+package step
 
 // StateType tells the step function what type of state the JSON is for. It
 // dictates which fields are allowed or not allowed when validating.

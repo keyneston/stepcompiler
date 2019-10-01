@@ -1,4 +1,4 @@
-package stepcompiler
+package step
 
 // This idea sadly doesn't work while maintaining the builder pattern.
 //
