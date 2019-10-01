@@ -12,4 +12,4 @@ show:
 	tail -n +1 step/gen_*.go
 
 test:
-	go test -cover github.com/keyneston/stepcompiler/step
+	go test -cover ./...
