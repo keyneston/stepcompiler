@@ -225,11 +225,29 @@ func (t Type) GenerateGatherStates(f *j.File) error {
 		ifStmt := j.If(j.Id(Self).Dot("next").Op("!=").Nil()).Block(
 			varName.Clone().Op("=").Append(
 				varName.Clone(),
-				j.Id(Self).Dot("next"),
+				j.Id(Self).Dot("next").Dot("GatherStates").Call().Op("..."),
+			),
+		)
+		b.Add(ifStmt)
+	}
+
+	if t.HasField("Catch") {
+		forStmt := j.For(
+			j.List(
+				j.Id("_"), j.Id("clause"),
+			).Op(":=").Range().Id(Self).Dot("catch"),
+		).Block(
+			j.If(
+				j.Id("clause").Dot("next").Op("!=").Nil(),
+			).Block(
+				varName.Clone().Op("=").Append(
+					varName.Clone(),
+					j.Id("clause").Dot("next").Dot("GatherStates").Call().Op("..."),
+				),
 			),
 		)
 
-		b.Add(ifStmt)
+		b.Add(forStmt)
 	}
 
 	b.Add(j.Return().Add(varName.Clone()))
