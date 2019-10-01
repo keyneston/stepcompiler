@@ -21,7 +21,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	json.NewEncoder(os.Stdout).Encode(schema)
+	enc := json.NewEncoder(os.Stdout)
+	enc.SetIndent("", "    ")
+	enc.Encode(schema)
 
 	for _, t := range schema.Types() {
 		f := j.NewFile(PkgName)

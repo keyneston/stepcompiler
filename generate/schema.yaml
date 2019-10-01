@@ -7,7 +7,7 @@ UniversalFields:
   Type:
     Type: StateType
     OutputOnly: true
-    OutputGetter: "self.StateType()"
+    OutputValue: "self.StateType()"
   name:
     Type: string
     SkipSetter: true
@@ -19,7 +19,7 @@ SharedFields:
   Next:
     Type: State
     OutputType: string
-    OutputGetter: "\"\""
+    OutputValue: "\"\""
 
   Catch:
     Type: "*CatchClause" # TODO: this should be a list
@@ -63,14 +63,61 @@ StateTypes:
   DynamoGet:
     StateType: "Task"
     IncludeFields:
+      - Next
+      - Heartbeat
+      - Timeout
+      - Catch
+    Fields:
+      Resource:
+        OutputOnly: true
+        Type: string
+        OutputValue: '"arn:aws:states:::dynamodb:getItem"'
+
+  DynamoDelete:
+    StateType: "Task"
+    IncludeFields:
       - Resource
       - Next
       - Heartbeat
       - Timeout
       - Catch
+    Fields:
+      Resource:
+        OutputOnly: true
+        Type: string
+        OutputValue: '"arn:aws:states:::dynamodb:deleteItem"'
+
+  DynamoPut:
+    StateType: "Task"
+    IncludeFields:
+      - Resource
+      - Next
+      - Heartbeat
+      - Timeout
+      - Catch
+    Fields:
+      Resource:
+        OutputOnly: true
+        Type: string
+        OutputValue: '"arn:aws:states:::dynamodb:putItem"'
+
+  LambdaWait:
+    StateType: "Task"
+    IncludeFields:
+      - Resource
+      - Next
+      - Heartbeat
+      - Timeout
+      - Catch
+  
+  Pass:
+    StateType: "Pass"
+    IncludeFields:
+      - Next
 
   Succeed:
     StateType: "Succeed"
 
   Fail:
     StateType: "Fail"
+

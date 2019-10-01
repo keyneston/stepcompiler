@@ -5,20 +5,21 @@ import (
 	"time"
 )
 
-type DynamoGet struct {
+type DynamoPut struct {
 	catch     []*CatchClause
 	comment   string
 	heartbeat time.Duration
 	next      State
+	resource  string
 	timeout   time.Duration
 	name      string
 }
 
-func (self *DynamoGet) Catch(input ...*CatchClause) *DynamoGet {
+func (self *DynamoPut) Catch(input ...*CatchClause) *DynamoPut {
 	self.catch = append(self.catch, input...)
 	return self
 }
-func (self *DynamoGet) Comment(input string) *DynamoGet {
+func (self *DynamoPut) Comment(input string) *DynamoPut {
 	self.comment = input
 	return self
 }
@@ -28,31 +29,35 @@ func (self *DynamoGet) Comment(input string) *DynamoGet {
 // failed.
 //
 // Any time less than one second is rounded up to one second.
-func (self *DynamoGet) Heartbeat(input time.Duration) *DynamoGet {
+func (self *DynamoPut) Heartbeat(input time.Duration) *DynamoPut {
 	self.heartbeat = input
 	return self
 }
-func (self *DynamoGet) Next(input State) *DynamoGet {
+func (self *DynamoPut) Next(input State) *DynamoPut {
 	self.next = input
 	return self
 }
-func (self *DynamoGet) Timeout(input time.Duration) *DynamoGet {
+func (self *DynamoPut) Resource(input string) *DynamoPut {
+	self.resource = input
+	return self
+}
+func (self *DynamoPut) Timeout(input time.Duration) *DynamoPut {
 	self.timeout = input
 	return self
 }
-func NewDynamoGet(name string) *DynamoGet {
-	return &DynamoGet{name: name}
+func NewDynamoPut(name string) *DynamoPut {
+	return &DynamoPut{name: name}
 }
-func (self DynamoGet) Name() string {
+func (self DynamoPut) Name() string {
 	return self.name
 }
-func (self DynamoGet) MarshalJSON() ([]byte, error) {
-	out := &dynamogetOutput{
+func (self DynamoPut) MarshalJSON() ([]byte, error) {
+	out := &dynamoputOutput{
 		Catch:     self.catch,
 		Comment:   self.comment,
 		Heartbeat: Timeout(self.heartbeat),
 		Next:      "",
-		Resource:  "arn:aws:states:::dynamodb:getItem",
+		Resource:  self.resource,
 		Timeout:   Timeout(self.timeout),
 		Type:      self.StateType(),
 	}
@@ -63,7 +68,7 @@ func (self DynamoGet) MarshalJSON() ([]byte, error) {
 	}
 	return json.Marshal(out)
 }
-func (self DynamoGet) GatherStates() []State {
+func (self DynamoPut) GatherStates() []State {
 	states := []State{self}
 	if self.next != nil {
 		states = append(states, self.next.GatherStates()...)
@@ -76,7 +81,7 @@ func (self DynamoGet) GatherStates() []State {
 	return states
 }
 
-type dynamogetOutput struct {
+type dynamoputOutput struct {
 	Catch     []*CatchClause `json:"Catch,omitempty"`
 	Comment   string         `json:"Comment,omitempty"`
 	End       bool           `json:"End,omitempty"`
@@ -87,6 +92,6 @@ type dynamogetOutput struct {
 	Type      StateType      `json:"Type,omitempty"`
 }
 
-func (self DynamoGet) StateType() StateType {
+func (self DynamoPut) StateType() StateType {
 	return StateType("Task")
 }

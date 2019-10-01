@@ -5,20 +5,21 @@ import (
 	"time"
 )
 
-type DynamoGet struct {
+type LambdaWait struct {
 	catch     []*CatchClause
 	comment   string
 	heartbeat time.Duration
 	next      State
+	resource  string
 	timeout   time.Duration
 	name      string
 }
 
-func (self *DynamoGet) Catch(input ...*CatchClause) *DynamoGet {
+func (self *LambdaWait) Catch(input ...*CatchClause) *LambdaWait {
 	self.catch = append(self.catch, input...)
 	return self
 }
-func (self *DynamoGet) Comment(input string) *DynamoGet {
+func (self *LambdaWait) Comment(input string) *LambdaWait {
 	self.comment = input
 	return self
 }
@@ -28,31 +29,35 @@ func (self *DynamoGet) Comment(input string) *DynamoGet {
 // failed.
 //
 // Any time less than one second is rounded up to one second.
-func (self *DynamoGet) Heartbeat(input time.Duration) *DynamoGet {
+func (self *LambdaWait) Heartbeat(input time.Duration) *LambdaWait {
 	self.heartbeat = input
 	return self
 }
-func (self *DynamoGet) Next(input State) *DynamoGet {
+func (self *LambdaWait) Next(input State) *LambdaWait {
 	self.next = input
 	return self
 }
-func (self *DynamoGet) Timeout(input time.Duration) *DynamoGet {
+func (self *LambdaWait) Resource(input string) *LambdaWait {
+	self.resource = input
+	return self
+}
+func (self *LambdaWait) Timeout(input time.Duration) *LambdaWait {
 	self.timeout = input
 	return self
 }
-func NewDynamoGet(name string) *DynamoGet {
-	return &DynamoGet{name: name}
+func NewLambdaWait(name string) *LambdaWait {
+	return &LambdaWait{name: name}
 }
-func (self DynamoGet) Name() string {
+func (self LambdaWait) Name() string {
 	return self.name
 }
-func (self DynamoGet) MarshalJSON() ([]byte, error) {
-	out := &dynamogetOutput{
+func (self LambdaWait) MarshalJSON() ([]byte, error) {
+	out := &lambdawaitOutput{
 		Catch:     self.catch,
 		Comment:   self.comment,
 		Heartbeat: Timeout(self.heartbeat),
 		Next:      "",
-		Resource:  "arn:aws:states:::dynamodb:getItem",
+		Resource:  self.resource,
 		Timeout:   Timeout(self.timeout),
 		Type:      self.StateType(),
 	}
@@ -63,7 +68,7 @@ func (self DynamoGet) MarshalJSON() ([]byte, error) {
 	}
 	return json.Marshal(out)
 }
-func (self DynamoGet) GatherStates() []State {
+func (self LambdaWait) GatherStates() []State {
 	states := []State{self}
 	if self.next != nil {
 		states = append(states, self.next.GatherStates()...)
@@ -76,7 +81,7 @@ func (self DynamoGet) GatherStates() []State {
 	return states
 }
 
-type dynamogetOutput struct {
+type lambdawaitOutput struct {
 	Catch     []*CatchClause `json:"Catch,omitempty"`
 	Comment   string         `json:"Comment,omitempty"`
 	End       bool           `json:"End,omitempty"`
@@ -87,6 +92,6 @@ type dynamogetOutput struct {
 	Type      StateType      `json:"Type,omitempty"`
 }
 
-func (self DynamoGet) StateType() StateType {
+func (self LambdaWait) StateType() StateType {
 	return StateType("Task")
 }

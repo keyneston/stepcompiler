@@ -184,15 +184,15 @@ func (t Type) GenerateMarshalJSON(f *j.File) error {
 
 	straightCopies := j.Dict{}
 	for name, schema := range t.Fields {
-		if (schema.OutputOnly && schema.OutputGetter == "") || schema.SkipOutput {
+		if (schema.OutputOnly && schema.OutputValue == "") || schema.SkipOutput {
 			continue
 		}
 
 		selfField := j.Id(Self + "." + strings.ToLower(name))
 
 		field := j.Id(name)
-		if schema.OutputGetter != "" {
-			straightCopies[field] = j.Id(schema.OutputGetter)
+		if schema.OutputValue != "" {
+			straightCopies[field] = j.Id(schema.OutputValue)
 		} else if schema.OutputType != "" && schema.OutputType != schema.Type {
 			straightCopies[field] = j.Id(schema.OutputType).Params(selfField)
 		} else {
