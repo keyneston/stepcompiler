@@ -218,3 +218,18 @@ StateTypes:
   Fail:
     StateType: "Fail"
 
+  Wait:
+    StateType: "Wait"
+    IncludeFields:
+      - Next
+
+    Fields:
+      TimestampPath:
+
+      Timestamp:
+
+      Seconds:
+        Type: Duration
+        SourcePackage: time
+        OutputType: Timeout
+        JSONName: "TimeoutSeconds"

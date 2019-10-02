@@ -125,7 +125,13 @@ func (t Type) GenerateStruct(f *j.File) error {
 }
 
 func (t Type) GenerateNewFunc(f *j.File) error {
-	newFunc := j.Func().Id(t.NewFuncName()).Params(j.Id("name").Id("string")).Params(j.Op("*").Id(t.Name)).Block(
+	newFunc := j.Func().Id(
+		t.NewFuncName(), // Function Name
+	).Params(
+		j.Id("name").Id("string"), // Params
+	).List(
+		j.Op("*").Id(t.Name), // Return Arguments
+	).Block(
 		j.Return().Op("&").Id(t.Name).Values(j.Id("name").Op(":").Id("name")),
 	)
 
