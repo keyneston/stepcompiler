@@ -13,13 +13,14 @@ import (
 // See https://docs.aws.amazon.com/step-functions/latest/dg/amazon-states-language-task-state.html
 // for more details.
 type Task struct {
-	catch     []*CatchClause
-	comment   string
-	heartbeat time.Duration
-	next      State
-	resource  string
-	timeout   time.Duration
-	name      string
+	catch      []*CatchClause
+	comment    string
+	heartbeat  time.Duration
+	next       State
+	parameters map[string]interface{}
+	resource   string
+	timeout    time.Duration
+	name       string
 }
 
 func (self *Task) Catch(input ...*CatchClause) *Task {
@@ -47,6 +48,10 @@ func (self *Task) Next(input State) *Task {
 	self.next = input
 	return self
 }
+func (self *Task) Parameters(input map[string]interface{}) *Task {
+	self.parameters = input
+	return self
+}
 func (self *Task) Resource(input string) *Task {
 	self.resource = input
 	return self
@@ -63,13 +68,14 @@ func (self Task) Name() string {
 }
 func (self Task) MarshalJSON() ([]byte, error) {
 	out := &taskOutput{
-		Catch:     self.catch,
-		Comment:   self.comment,
-		Heartbeat: Timeout(self.heartbeat),
-		Next:      "",
-		Resource:  self.resource,
-		Timeout:   Timeout(self.timeout),
-		Type:      self.StateType(),
+		Catch:      self.catch,
+		Comment:    self.comment,
+		Heartbeat:  Timeout(self.heartbeat),
+		Next:       "",
+		Parameters: self.parameters,
+		Resource:   self.resource,
+		Timeout:    Timeout(self.timeout),
+		Type:       self.StateType(),
 	}
 	if self.next != nil {
 		out.Next = self.next.Name()
@@ -77,6 +83,13 @@ func (self Task) MarshalJSON() ([]byte, error) {
 		out.End = true
 	}
 	return json.Marshal(out)
+}
+func (self *Task) SetParameter(key string, value interface{}) *Task {
+	if self.parameters == nil {
+		self.parameters = map[string]interface{}{}
+	}
+	self.parameters[key] = value
+	return self
 }
 func (self Task) GatherStates() []State {
 	states := []State{self}
@@ -92,14 +105,15 @@ func (self Task) GatherStates() []State {
 }
 
 type taskOutput struct {
-	Catch     []*CatchClause `json:"Catch,omitempty"`
-	Comment   string         `json:"Comment,omitempty"`
-	End       bool           `json:"End,omitempty"`
-	Heartbeat Timeout        `json:"HeartbeatSeconds,omitempty"`
-	Next      string         `json:"Next,omitempty"`
-	Resource  string         `json:"Resource,omitempty"`
-	Timeout   Timeout        `json:"TimeoutSeconds,omitempty"`
-	Type      StateType      `json:"Type,omitempty"`
+	Catch      []*CatchClause         `json:"Catch,omitempty"`
+	Comment    string                 `json:"Comment,omitempty"`
+	End        bool                   `json:"End,omitempty"`
+	Heartbeat  Timeout                `json:"HeartbeatSeconds,omitempty"`
+	Next       string                 `json:"Next,omitempty"`
+	Parameters map[string]interface{} `json:"Parameters,omitempty"`
+	Resource   string                 `json:"Resource,omitempty"`
+	Timeout    Timeout                `json:"TimeoutSeconds,omitempty"`
+	Type       StateType              `json:"Type,omitempty"`
 }
 
 func (self Task) StateType() StateType {

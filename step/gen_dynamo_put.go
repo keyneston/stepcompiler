@@ -6,13 +6,14 @@ import (
 )
 
 type DynamoPut struct {
-	catch     []*CatchClause
-	comment   string
-	heartbeat time.Duration
-	next      State
-	resource  string
-	timeout   time.Duration
-	name      string
+	catch      []*CatchClause
+	comment    string
+	heartbeat  time.Duration
+	next       State
+	parameters map[string]interface{}
+	resource   string
+	timeout    time.Duration
+	name       string
 }
 
 func (self *DynamoPut) Catch(input ...*CatchClause) *DynamoPut {
@@ -36,8 +37,16 @@ func (self *DynamoPut) Heartbeat(input time.Duration) *DynamoPut {
 	self.heartbeat = input
 	return self
 }
+func (self *DynamoPut) Key(input string) *DynamoPut {
+	self.SetParameter("Key", input)
+	return self
+}
 func (self *DynamoPut) Next(input State) *DynamoPut {
 	self.next = input
+	return self
+}
+func (self *DynamoPut) Parameters(input map[string]interface{}) *DynamoPut {
+	self.parameters = input
 	return self
 }
 func (self *DynamoPut) Resource(input string) *DynamoPut {
@@ -56,13 +65,14 @@ func (self DynamoPut) Name() string {
 }
 func (self DynamoPut) MarshalJSON() ([]byte, error) {
 	out := &dynamoputOutput{
-		Catch:     self.catch,
-		Comment:   self.comment,
-		Heartbeat: Timeout(self.heartbeat),
-		Next:      "",
-		Resource:  self.resource,
-		Timeout:   Timeout(self.timeout),
-		Type:      self.StateType(),
+		Catch:      self.catch,
+		Comment:    self.comment,
+		Heartbeat:  Timeout(self.heartbeat),
+		Next:       "",
+		Parameters: self.parameters,
+		Resource:   self.resource,
+		Timeout:    Timeout(self.timeout),
+		Type:       self.StateType(),
 	}
 	if self.next != nil {
 		out.Next = self.next.Name()
@@ -70,6 +80,13 @@ func (self DynamoPut) MarshalJSON() ([]byte, error) {
 		out.End = true
 	}
 	return json.Marshal(out)
+}
+func (self *DynamoPut) SetParameter(key string, value interface{}) *DynamoPut {
+	if self.parameters == nil {
+		self.parameters = map[string]interface{}{}
+	}
+	self.parameters[key] = value
+	return self
 }
 func (self DynamoPut) GatherStates() []State {
 	states := []State{self}
@@ -85,14 +102,15 @@ func (self DynamoPut) GatherStates() []State {
 }
 
 type dynamoputOutput struct {
-	Catch     []*CatchClause `json:"Catch,omitempty"`
-	Comment   string         `json:"Comment,omitempty"`
-	End       bool           `json:"End,omitempty"`
-	Heartbeat Timeout        `json:"HeartbeatSeconds,omitempty"`
-	Next      string         `json:"Next,omitempty"`
-	Resource  string         `json:"Resource,omitempty"`
-	Timeout   Timeout        `json:"TimeoutSeconds,omitempty"`
-	Type      StateType      `json:"Type,omitempty"`
+	Catch      []*CatchClause         `json:"Catch,omitempty"`
+	Comment    string                 `json:"Comment,omitempty"`
+	End        bool                   `json:"End,omitempty"`
+	Heartbeat  Timeout                `json:"HeartbeatSeconds,omitempty"`
+	Next       string                 `json:"Next,omitempty"`
+	Parameters map[string]interface{} `json:"Parameters,omitempty"`
+	Resource   string                 `json:"Resource,omitempty"`
+	Timeout    Timeout                `json:"TimeoutSeconds,omitempty"`
+	Type       StateType              `json:"Type,omitempty"`
 }
 
 func (self DynamoPut) StateType() StateType {

@@ -51,7 +51,12 @@ func (t Type) NewFuncName() string {
 	return "New" + t.Name
 }
 
-func (t Type) genInType() {
+func (t Type) genReadReceiver(funcName string, params ...j.Code) *j.Statement {
+	return j.Func().Params(j.Id(Self).Id(t.Name)).Id(funcName).Params(params...)
+}
+
+func (t Type) genWriteReceiver(funcName string, params ...j.Code) *j.Statement {
+	return j.Func().Params(j.Id(Self).Op("*").Id(t.Name)).Id(funcName).Params(params...)
 }
 
 func (t Type) GenerateAll(f *j.File) error {
@@ -60,6 +65,7 @@ func (t Type) GenerateAll(f *j.File) error {
 		t.GenerateNewFunc,
 		t.GenerateNameFunc,
 		t.GenerateMarshalJSON,
+		t.GenerateParametersFuncs,
 		t.GenerateGatherStates,
 		t.GenerateOutputStruct,
 		t.GenerateStateTypeFunc,
@@ -138,7 +144,7 @@ func (t Type) generateSetter(name string, schema FieldSchema) j.Code {
 	assignment := selfField.Clone().Op("=").Id("input")
 
 	if schema.Alias != "" {
-		assignment = j.Id(Self).Dot(schema.Alias).Call(j.Id("input"))
+		assignment = j.Id(schema.Alias)
 
 	} else if schema.Array {
 		inputType = j.Op("...").Add(inputType)
@@ -236,7 +242,7 @@ func (t Type) GenerateMarshalJSON(f *j.File) error {
 	// Set the return to json.Marshal(out)
 	body = append(body, j.Return().Qual(JSONPackage, "Marshal").Call(j.Id("out")))
 
-	fun := j.Func().Params(j.Id(Self).Id(t.Name)).Id("MarshalJSON").Params().Params(
+	fun := t.genReadReceiver("MarshalJSON").Params(
 		j.Id("[]byte"), j.Error(),
 	).Block(body...)
 	f.Add(fun)
@@ -280,9 +286,7 @@ func (t Type) GenerateGatherStates(f *j.File) error {
 
 	b.Add(j.Return().Add(varName.Clone()))
 
-	gatherFunc := j.Func().Params(
-		j.Id(Self).Id(t.Name),
-	).Id(GatherFunction).Params().Params(
+	gatherFunc := t.genReadReceiver(GatherFunction).Params(
 		j.Op("[]").Id("State"),
 	).Block(b.Get()...)
 
@@ -300,6 +304,31 @@ func (t Type) GenerateNameFunc(f *j.File) error {
 	)
 
 	f.Add(gatherFunc)
+	return nil
+}
+
+func (t Type) GenerateParametersFuncs(f *j.File) error {
+	if !t.HasField("Parameters") {
+		return nil
+	}
+
+	fun := t.genWriteReceiver(
+		"SetParameter",
+		j.Id("key").Id("string"),
+		j.Id("value").Interface(),
+	).Params(
+		j.Op("*").Id(t.Name),
+	).Block(
+		j.If(j.Id(Self).Dot("parameters").Op("==").Nil()).Block(
+			j.Id(Self).Dot("parameters").Op("=").Map(j.Id("string")).Interface().Values(),
+		),
+
+		j.Id(Self).Dot("parameters").Index(j.Id("key")).Op("=").Id("value"),
+
+		j.Return().Id(Self),
+	)
+
+	f.Add(fun)
 	return nil
 }
 

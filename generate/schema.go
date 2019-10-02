@@ -30,17 +30,23 @@ type FieldSchema struct {
 	Alias            string `yaml:"Alias"`
 }
 
-func (f FieldSchema) GetJSONName() string {
-	if f.JSONName != "" {
-		return f.JSONName
+// SetDefaults goes through and sets any default values. Additionally it sets
+// the Name.
+func (fs *FieldSchema) SetDefaults(name string) {
+	fs.Name = name
+
+	if fs.JSONName == "" {
+		fs.JSONName = fs.Name
 	}
 
-	return f.Name
+	if fs.Type == "" {
+		fs.Type = "string"
+	}
 }
 
 func (f FieldSchema) getOuputTags() map[string]string {
 	return map[string]string{
-		"json": f.GetJSONName() + ",omitempty",
+		"json": f.JSONName + ",omitempty",
 	}
 }
 
@@ -51,12 +57,12 @@ func (s Schema) Types() []Type {
 		fields := map[string]FieldSchema{}
 
 		for k, v := range info.Fields {
-			v.Name = k
+			v.SetDefaults(k)
 			fields[k] = v
 		}
 
 		for k, v := range s.UniversalFields {
-			v.Name = k
+			v.SetDefaults(k)
 			fields[k] = v
 		}
 
@@ -65,7 +71,7 @@ func (s Schema) Types() []Type {
 			if !ok {
 				log.Fatalf("Can't find field %q for %q", k, name)
 			}
-			field.Name = k
+			field.SetDefaults(k)
 			fields[k] = field
 		}
 
