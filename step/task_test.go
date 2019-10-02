@@ -80,12 +80,19 @@ func TestTaskCatchGathered(t *testing.T) {
 	assert.JSONEq(t, string(output), expected)
 }
 
-func TestTaskTimeout(t *testing.T) {
-	step := NewBuilder().StartAt(NewTask("Foo").Timeout(time.Minute * 5))
+func TestTasks(t *testing.T) {
+	type testCase struct {
+		name     string
+		state    *Builder
+		expected string
+	}
 
-	expected := `
-{
-    "StartAt": "Foo",
+	cases := []testCase{
+		{
+			name:  "Timeout",
+			state: NewBuilder().StartAt(NewTask("Foo").Timeout(time.Minute * 5)),
+			expected: `{
+				"StartAt": "Foo",
     "States": {
         "Foo": {
             "Type": "Task",
@@ -93,10 +100,28 @@ func TestTaskTimeout(t *testing.T) {
 			"End": true
         }
 	}
-}
-`
+}`,
+		},
+		{
+			name:  "Heartbeat",
+			state: NewBuilder().StartAt(NewTask("Foo").Heartbeat(time.Minute * 5)),
+			expected: `{
+				"StartAt": "Foo",
+    "States": {
+        "Foo": {
+            "Type": "Task",
+			"HeartbeatSeconds": 300,
+			"End": true
+        }
+	}
+}`,
+		},
+	}
 
-	output, err := step.Render()
-	assert.NoError(t, err)
-	assert.JSONEq(t, expected, string(output))
+	for _, c := range cases {
+		output, err := c.state.Render()
+
+		assert.NoErrorf(t, err, "TestCase: %q", c.name)
+		assert.JSONEqf(t, c.expected, string(output), "TestCase: %q", c.name)
+	}
 }
