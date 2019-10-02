@@ -2,6 +2,7 @@ package step
 
 import (
 	"encoding/json"
+	dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 	"time"
 )
 
@@ -14,6 +15,7 @@ type DynamoGet struct {
 	heartbeat  time.Duration
 	next       State
 	parameters map[string]interface{}
+	resultpath string
 	timeout    time.Duration
 	name       string
 }
@@ -29,6 +31,10 @@ func (self *DynamoGet) Comment(input string) *DynamoGet {
 	self.comment = input
 	return self
 }
+func (self *DynamoGet) ConditionExpression(input string) *DynamoGet {
+	self.SetParameter("ConditionExpression", input)
+	return self
+}
 
 // Heartbeat is the number of seconds required between check-ins.
 // If this time elapses without a check-in then the task is considered
@@ -39,7 +45,7 @@ func (self *DynamoGet) Heartbeat(input time.Duration) *DynamoGet {
 	self.heartbeat = input
 	return self
 }
-func (self *DynamoGet) Key(input string) *DynamoGet {
+func (self *DynamoGet) Key(input map[string]*dynamodb.AttributeValue) *DynamoGet {
 	self.SetParameter("Key", input)
 	return self
 }
@@ -49,6 +55,10 @@ func (self *DynamoGet) Next(input State) *DynamoGet {
 }
 func (self *DynamoGet) Parameters(input map[string]interface{}) *DynamoGet {
 	self.parameters = input
+	return self
+}
+func (self *DynamoGet) ResultPath(input string) *DynamoGet {
+	self.resultpath = input
 	return self
 }
 
@@ -80,6 +90,7 @@ func (self DynamoGet) MarshalJSON() ([]byte, error) {
 		Next:       "",
 		Parameters: self.parameters,
 		Resource:   "arn:aws:states:::dynamodb:getItem",
+		ResultPath: self.resultpath,
 		Timeout:    Timeout(self.timeout),
 		Type:       self.StateType(),
 	}
@@ -118,6 +129,7 @@ type dynamogetOutput struct {
 	Next       string                 `json:"Next,omitempty"`
 	Parameters map[string]interface{} `json:"Parameters,omitempty"`
 	Resource   string                 `json:"Resource,omitempty"`
+	ResultPath string                 `json:"ResultPath,omitempty"`
 	Timeout    Timeout                `json:"TimeoutSeconds,omitempty"`
 	Type       StateType              `json:"Type,omitempty"`
 }

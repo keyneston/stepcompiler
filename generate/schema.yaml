@@ -21,6 +21,8 @@ SharedFields:
     OutputType: string
     OutputValue: "\"\""
 
+  ResultPath:
+
   ChainableNext:
     Alias: "self.Next(input)"
     Type: State
@@ -34,7 +36,8 @@ SharedFields:
     Array: true
 
   Timeout:
-    Type: time.Duration
+    Type: Duration
+    SourcePackage: time
     OutputType: Timeout
     JSONName: "TimeoutSeconds"
     Comment: |-
@@ -59,8 +62,22 @@ SharedFields:
   Key:
     SkipOutput: true
     Alias: 'self.SetParameter("Key", input)'
-    #Type: map[string]*github.com/aws/aws-sdk-go/service/dynamodb.AttributeValue
-    #Type: "github.com/aws/aws-sdk-go/service/dynamodb.AttributeValue"
+    Type: "AttributeValue"
+    Map: string # map[_string_]*dynamodb.AttributeValue
+    Pointer: true
+    SourcePackage: "github.com/aws/aws-sdk-go/service/dynamodb"
+
+  ConditionExpression:
+    SkipOutput: true
+    Alias: 'self.SetParameter("ConditionExpression", input)'
+
+  Item:
+    SkipOutput: true
+    Alias: 'self.SetParameter("Key", input)'
+    Type: "AttributeValue"
+    Map: string # map[_string_]*dynamodb.AttributeValue
+    Pointer: true
+    SourcePackage: "github.com/aws/aws-sdk-go/service/dynamodb"
 
   Heartbeat:
     Comment: |-
@@ -69,7 +86,8 @@ SharedFields:
       // failed.
       //
       // Any time less than one second will induce a panic.
-    Type: time.Duration
+    Type: Duration
+    SourcePackage: time
     OutputType: Timeout
     JSONName: HeartbeatSeconds
 
@@ -92,6 +110,7 @@ StateTypes:
       - Timeout
       - Catch
       - Parameters
+      - ResultPath
 
   DynamoGet:
     Comment: |-
@@ -106,8 +125,10 @@ StateTypes:
       - Timeout
       - Catch
       - Parameters
+      - ResultPath
       - TableName
       - Key
+      - ConditionExpression
     Fields:
       Resource:
         OutputOnly: true
@@ -122,6 +143,7 @@ StateTypes:
     StateType: "Task"
     IncludeFields:
       - Resource
+      - ResultPath
       - Next
       - ChainableNext
       - Heartbeat
@@ -130,6 +152,7 @@ StateTypes:
       - Parameters
       - TableName
       - Key
+      - ConditionExpression
     Fields:
       Resource:
         OutputOnly: true
@@ -150,7 +173,10 @@ StateTypes:
       - Timeout
       - Catch
       - Parameters
-      - Key
+      - ResultPath
+      - ConditionExpression
+      - Item
+      - TableName
     Fields:
       Resource:
         OutputOnly: true
@@ -165,6 +191,7 @@ StateTypes:
       - FunctionName
       - Heartbeat
       - Next
+      - ResultPath
       - Parameters
       - Resource
       - Timeout
@@ -174,6 +201,7 @@ StateTypes:
     IncludeFields:
       - Next
       - ChainableNext
+      - ResultPath
 
   Succeed:
     StateType: "Succeed"

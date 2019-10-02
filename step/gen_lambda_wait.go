@@ -12,6 +12,7 @@ type LambdaWait struct {
 	next       State
 	parameters map[string]interface{}
 	resource   string
+	resultpath string
 	timeout    time.Duration
 	name       string
 }
@@ -57,6 +58,10 @@ func (self *LambdaWait) Resource(input string) *LambdaWait {
 	self.resource = input
 	return self
 }
+func (self *LambdaWait) ResultPath(input string) *LambdaWait {
+	self.resultpath = input
+	return self
+}
 
 // Timeout is the number of seconds for the task to complete.  If this
 // time elapses without a check-in then the task is considered failed.
@@ -80,6 +85,7 @@ func (self LambdaWait) MarshalJSON() ([]byte, error) {
 		Next:       "",
 		Parameters: self.parameters,
 		Resource:   self.resource,
+		ResultPath: self.resultpath,
 		Timeout:    Timeout(self.timeout),
 		Type:       self.StateType(),
 	}
@@ -118,6 +124,7 @@ type lambdawaitOutput struct {
 	Next       string                 `json:"Next,omitempty"`
 	Parameters map[string]interface{} `json:"Parameters,omitempty"`
 	Resource   string                 `json:"Resource,omitempty"`
+	ResultPath string                 `json:"ResultPath,omitempty"`
 	Timeout    Timeout                `json:"TimeoutSeconds,omitempty"`
 	Type       StateType              `json:"Type,omitempty"`
 }

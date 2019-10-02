@@ -2,6 +2,7 @@ package step
 
 import (
 	"encoding/json"
+	dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 	"time"
 )
 
@@ -15,6 +16,7 @@ type DynamoPut struct {
 	next       State
 	parameters map[string]interface{}
 	resource   string
+	resultpath string
 	timeout    time.Duration
 	name       string
 }
@@ -30,6 +32,10 @@ func (self *DynamoPut) Comment(input string) *DynamoPut {
 	self.comment = input
 	return self
 }
+func (self *DynamoPut) ConditionExpression(input string) *DynamoPut {
+	self.SetParameter("ConditionExpression", input)
+	return self
+}
 
 // Heartbeat is the number of seconds required between check-ins.
 // If this time elapses without a check-in then the task is considered
@@ -40,7 +46,7 @@ func (self *DynamoPut) Heartbeat(input time.Duration) *DynamoPut {
 	self.heartbeat = input
 	return self
 }
-func (self *DynamoPut) Key(input string) *DynamoPut {
+func (self *DynamoPut) Item(input map[string]*dynamodb.AttributeValue) *DynamoPut {
 	self.SetParameter("Key", input)
 	return self
 }
@@ -54,6 +60,16 @@ func (self *DynamoPut) Parameters(input map[string]interface{}) *DynamoPut {
 }
 func (self *DynamoPut) Resource(input string) *DynamoPut {
 	self.resource = input
+	return self
+}
+func (self *DynamoPut) ResultPath(input string) *DynamoPut {
+	self.resultpath = input
+	return self
+}
+
+// TableName sets the name of the table to make the dynamodb request to.
+func (self *DynamoPut) TableName(input string) *DynamoPut {
+	self.SetParameter("TableName", input)
 	return self
 }
 
@@ -79,6 +95,7 @@ func (self DynamoPut) MarshalJSON() ([]byte, error) {
 		Next:       "",
 		Parameters: self.parameters,
 		Resource:   self.resource,
+		ResultPath: self.resultpath,
 		Timeout:    Timeout(self.timeout),
 		Type:       self.StateType(),
 	}
@@ -117,6 +134,7 @@ type dynamoputOutput struct {
 	Next       string                 `json:"Next,omitempty"`
 	Parameters map[string]interface{} `json:"Parameters,omitempty"`
 	Resource   string                 `json:"Resource,omitempty"`
+	ResultPath string                 `json:"ResultPath,omitempty"`
 	Timeout    Timeout                `json:"TimeoutSeconds,omitempty"`
 	Type       StateType              `json:"Type,omitempty"`
 }

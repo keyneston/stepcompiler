@@ -2,6 +2,7 @@ package step
 
 import (
 	"encoding/json"
+	dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 	"time"
 )
 
@@ -15,6 +16,7 @@ type DynamoDelete struct {
 	next       State
 	parameters map[string]interface{}
 	resource   string
+	resultpath string
 	timeout    time.Duration
 	name       string
 }
@@ -30,6 +32,10 @@ func (self *DynamoDelete) Comment(input string) *DynamoDelete {
 	self.comment = input
 	return self
 }
+func (self *DynamoDelete) ConditionExpression(input string) *DynamoDelete {
+	self.SetParameter("ConditionExpression", input)
+	return self
+}
 
 // Heartbeat is the number of seconds required between check-ins.
 // If this time elapses without a check-in then the task is considered
@@ -40,7 +46,7 @@ func (self *DynamoDelete) Heartbeat(input time.Duration) *DynamoDelete {
 	self.heartbeat = input
 	return self
 }
-func (self *DynamoDelete) Key(input string) *DynamoDelete {
+func (self *DynamoDelete) Key(input map[string]*dynamodb.AttributeValue) *DynamoDelete {
 	self.SetParameter("Key", input)
 	return self
 }
@@ -54,6 +60,10 @@ func (self *DynamoDelete) Parameters(input map[string]interface{}) *DynamoDelete
 }
 func (self *DynamoDelete) Resource(input string) *DynamoDelete {
 	self.resource = input
+	return self
+}
+func (self *DynamoDelete) ResultPath(input string) *DynamoDelete {
+	self.resultpath = input
 	return self
 }
 
@@ -85,6 +95,7 @@ func (self DynamoDelete) MarshalJSON() ([]byte, error) {
 		Next:       "",
 		Parameters: self.parameters,
 		Resource:   self.resource,
+		ResultPath: self.resultpath,
 		Timeout:    Timeout(self.timeout),
 		Type:       self.StateType(),
 	}
@@ -123,6 +134,7 @@ type dynamodeleteOutput struct {
 	Next       string                 `json:"Next,omitempty"`
 	Parameters map[string]interface{} `json:"Parameters,omitempty"`
 	Resource   string                 `json:"Resource,omitempty"`
+	ResultPath string                 `json:"ResultPath,omitempty"`
 	Timeout    Timeout                `json:"TimeoutSeconds,omitempty"`
 	Type       StateType              `json:"Type,omitempty"`
 }

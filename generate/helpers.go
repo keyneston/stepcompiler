@@ -26,3 +26,7 @@ func GetQual(input string) jen.Code {
 
 	return j.Qual(splitInput[0], splitInput[1])
 }
+
+func self(field string) *jen.Statement {
+	return j.Id(Self).Dot(field)
+}

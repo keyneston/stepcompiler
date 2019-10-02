@@ -3,9 +3,10 @@ package step
 import "encoding/json"
 
 type Pass struct {
-	comment string
-	next    State
-	name    string
+	comment    string
+	next       State
+	resultpath string
+	name       string
 }
 
 func (self *Pass) ChainableNext(input State) {
@@ -19,6 +20,10 @@ func (self *Pass) Next(input State) *Pass {
 	self.next = input
 	return self
 }
+func (self *Pass) ResultPath(input string) *Pass {
+	self.resultpath = input
+	return self
+}
 func NewPass(name string) *Pass {
 	return &Pass{name: name}
 }
@@ -27,9 +32,10 @@ func (self Pass) Name() string {
 }
 func (self Pass) MarshalJSON() ([]byte, error) {
 	out := &passOutput{
-		Comment: self.comment,
-		Next:    "",
-		Type:    self.StateType(),
+		Comment:    self.comment,
+		Next:       "",
+		ResultPath: self.resultpath,
+		Type:       self.StateType(),
 	}
 	if self.next != nil {
 		out.Next = self.next.Name()
@@ -47,10 +53,11 @@ func (self Pass) GatherStates() []State {
 }
 
 type passOutput struct {
-	Comment string    `json:"Comment,omitempty"`
-	End     bool      `json:"End,omitempty"`
-	Next    string    `json:"Next,omitempty"`
-	Type    StateType `json:"Type,omitempty"`
+	Comment    string    `json:"Comment,omitempty"`
+	End        bool      `json:"End,omitempty"`
+	Next       string    `json:"Next,omitempty"`
+	ResultPath string    `json:"ResultPath,omitempty"`
+	Type       StateType `json:"Type,omitempty"`
 }
 
 func (self Pass) StateType() StateType {

@@ -90,11 +90,7 @@ func (t Type) GenerateStruct(f *j.File) error {
 			continue
 		}
 
-		structType := GetQual(info.Type)
-		if info.Array {
-			structType = j.Op("[]").Add(structType)
-		}
-
+		structType := info.getTypeId()
 		structFields = append(structFields, j.Id(strings.ToLower(name)).Add(structType))
 	}
 
@@ -140,7 +136,7 @@ func (t Type) GenerateNewFunc(f *j.File) error {
 
 func (t Type) generateSetter(name string, schema FieldSchema) j.Code {
 	selfField := j.Id(Self).Dot(strings.ToLower(name))
-	inputType := GetQual(schema.Type)
+	inputType := schema.getSingleId()
 	assignment := selfField.Clone().Op("=").Id("input")
 
 	if schema.Alias != "" {

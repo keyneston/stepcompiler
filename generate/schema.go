@@ -1,6 +1,8 @@
 package main
 
-import "log"
+import (
+	"log"
+)
 
 type Schema struct {
 	UniversalFields map[string]FieldSchema `yaml:"UniversalFields"`
@@ -13,41 +15,6 @@ type StateType struct {
 	Fields        map[string]FieldSchema `yaml:"Fields"`
 	StateType     string                 `yaml:"StateType"`
 	Comment       string                 `yaml:"Comment"`
-}
-
-type FieldSchema struct {
-	Name             string `yaml:"-"`
-	Comment          string `yaml:"Comment"`
-	Type             string `yaml:"Type"`
-	JSONName         string `yaml:"JSONName"`
-	OutputOnly       bool   `yaml:"OutputOnly"`
-	OutputType       string `yaml:"OutputType"`
-	SkipOutput       bool   `yaml:"SkipOutput"`
-	SkipSetter       bool   `yaml:"SkipSetter"`
-	OutputValue      string `yaml:"OutputValue"`
-	Array            bool   `yaml:"Array"`
-	NonBuilderSetter bool   `yaml:"NonBuilderSetter"`
-	Alias            string `yaml:"Alias"`
-}
-
-// SetDefaults goes through and sets any default values. Additionally it sets
-// the Name.
-func (fs *FieldSchema) SetDefaults(name string) {
-	fs.Name = name
-
-	if fs.JSONName == "" {
-		fs.JSONName = fs.Name
-	}
-
-	if fs.Type == "" {
-		fs.Type = "string"
-	}
-}
-
-func (f FieldSchema) getOuputTags() map[string]string {
-	return map[string]string{
-		"json": f.JSONName + ",omitempty",
-	}
 }
 
 func (s Schema) Types() []Type {

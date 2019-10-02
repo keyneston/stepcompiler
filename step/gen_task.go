@@ -19,6 +19,7 @@ type Task struct {
 	next       State
 	parameters map[string]interface{}
 	resource   string
+	resultpath string
 	timeout    time.Duration
 	name       string
 }
@@ -56,6 +57,10 @@ func (self *Task) Resource(input string) *Task {
 	self.resource = input
 	return self
 }
+func (self *Task) ResultPath(input string) *Task {
+	self.resultpath = input
+	return self
+}
 
 // Timeout is the number of seconds for the task to complete.  If this
 // time elapses without a check-in then the task is considered failed.
@@ -79,6 +84,7 @@ func (self Task) MarshalJSON() ([]byte, error) {
 		Next:       "",
 		Parameters: self.parameters,
 		Resource:   self.resource,
+		ResultPath: self.resultpath,
 		Timeout:    Timeout(self.timeout),
 		Type:       self.StateType(),
 	}
@@ -117,6 +123,7 @@ type taskOutput struct {
 	Next       string                 `json:"Next,omitempty"`
 	Parameters map[string]interface{} `json:"Parameters,omitempty"`
 	Resource   string                 `json:"Resource,omitempty"`
+	ResultPath string                 `json:"ResultPath,omitempty"`
 	Timeout    Timeout                `json:"TimeoutSeconds,omitempty"`
 	Type       StateType              `json:"Type,omitempty"`
 }
