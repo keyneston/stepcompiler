@@ -1,6 +1,10 @@
 package step
 
-import "encoding/json"
+import (
+	"bytes"
+	"encoding/json"
+	"io"
+)
 
 type Builder struct {
 	comment string
@@ -45,6 +49,13 @@ func (sfb *Builder) gatherStates() map[string]State {
 }
 
 func (sfb *Builder) Render() ([]byte, error) {
+	buf := &bytes.Buffer{}
+
+	err := sfb.Write(buf)
+	return buf.Bytes(), err
+}
+
+func (sfb *Builder) Write(w io.Writer) error {
 	output := stepFunction{
 		Comment: sfb.comment,
 		States:  sfb.gatherStates(),
@@ -54,5 +65,7 @@ func (sfb *Builder) Render() ([]byte, error) {
 		output.StartAt = sfb.startAt.Name()
 	}
 
-	return json.MarshalIndent(output, "", "    ")
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", "    ")
+	return enc.Encode(output)
 }
