@@ -44,7 +44,7 @@ func (t Type) OutputStructName() string {
 }
 
 func (t Type) FileName() string {
-	return strings.ToLower(t.Name) + ".go"
+	return ToSnakeCase(t.Name) + ".go"
 }
 
 func (t Type) NewFuncName() string {
