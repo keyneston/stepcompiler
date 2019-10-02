@@ -5,6 +5,9 @@ import (
 	"time"
 )
 
+// DynamoPut is a wrapper for the DynamoDB putItem integration.
+//
+// AWS Documentation https://docs.aws.amazon.com/step-functions/latest/dg/connect-ddb.html
 type DynamoPut struct {
 	catch      []*CatchClause
 	comment    string

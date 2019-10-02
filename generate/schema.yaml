@@ -94,6 +94,10 @@ StateTypes:
       - Parameters
 
   DynamoGet:
+    Comment: |-
+      // DynamoGet is a wrapper for the DynamoDB getItem integration.
+      //
+      // AWS Documentation https://docs.aws.amazon.com/step-functions/latest/dg/connect-ddb.html
     StateType: "Task"
     IncludeFields:
       - Next
@@ -111,6 +115,10 @@ StateTypes:
         OutputValue: '"arn:aws:states:::dynamodb:getItem"'
 
   DynamoDelete:
+    Comment: |-
+      // DynamoDelete is a wrapper for the DynamoDB deleteItem integration.
+      //
+      // AWS Documentation https://docs.aws.amazon.com/step-functions/latest/dg/connect-ddb.html
     StateType: "Task"
     IncludeFields:
       - Resource
@@ -129,6 +137,10 @@ StateTypes:
         OutputValue: '"arn:aws:states:::dynamodb:deleteItem"'
 
   DynamoPut:
+    Comment: |-
+      // DynamoPut is a wrapper for the DynamoDB putItem integration.
+      //
+      // AWS Documentation https://docs.aws.amazon.com/step-functions/latest/dg/connect-ddb.html
     StateType: "Task"
     IncludeFields:
       - Resource

@@ -5,6 +5,9 @@ import (
 	"time"
 )
 
+// DynamoGet is a wrapper for the DynamoDB getItem integration.
+//
+// AWS Documentation https://docs.aws.amazon.com/step-functions/latest/dg/connect-ddb.html
 type DynamoGet struct {
 	catch      []*CatchClause
 	comment    string

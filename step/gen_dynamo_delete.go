@@ -5,6 +5,9 @@ import (
 	"time"
 )
 
+// DynamoDelete is a wrapper for the DynamoDB deleteItem integration.
+//
+// AWS Documentation https://docs.aws.amazon.com/step-functions/latest/dg/connect-ddb.html
 type DynamoDelete struct {
 	catch      []*CatchClause
 	comment    string
