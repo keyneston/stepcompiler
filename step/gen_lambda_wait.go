@@ -54,6 +54,12 @@ func (self *LambdaWait) Parameters(input map[string]interface{}) *LambdaWait {
 	self.parameters = input
 	return self
 }
+
+// Payload is the parameters for Invoke Lambda.
+func (self *LambdaWait) Payload(input map[string]interface{}) *LambdaWait {
+	self.SetParameter("Payload", input)
+	return self
+}
 func (self *LambdaWait) Resource(input string) *LambdaWait {
 	self.resource = input
 	return self

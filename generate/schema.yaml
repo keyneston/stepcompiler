@@ -51,6 +51,14 @@ SharedFields:
     Comment: |-
       // TableName sets the name of the table to make the dynamodb request to.
 
+  Payload:
+    SkipOutput: true
+    Alias: 'self.SetParameter("Payload", input)'
+    Type: interface{}
+    Map: string
+    Comment: |-
+      // Payload is the parameters for Invoke Lambda.
+
   FunctionName:
     SkipOutput: true
     Alias: 'self.SetParameter("FunctionName", input)'
@@ -186,6 +194,7 @@ StateTypes:
   LambdaWait:
     StateType: "Task"
     IncludeFields:
+      - Payload
       - Catch
       - ChainableNext
       - FunctionName
