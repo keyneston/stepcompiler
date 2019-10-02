@@ -53,10 +53,17 @@ func (self *DynamoDelete) Resource(input string) *DynamoDelete {
 	self.resource = input
 	return self
 }
+
+// TableName sets the name of the table to make the dynamodb request to.
 func (self *DynamoDelete) TableName(input string) *DynamoDelete {
 	self.SetParameter("TableName", input)
 	return self
 }
+
+// Timeout is the number of seconds for the task to complete.  If this
+// time elapses without a check-in then the task is considered failed.
+//
+// Any time less than one second will induce a panic.
 func (self *DynamoDelete) Timeout(input time.Duration) *DynamoDelete {
 	self.timeout = input
 	return self

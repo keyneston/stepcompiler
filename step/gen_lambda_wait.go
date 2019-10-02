@@ -27,6 +27,10 @@ func (self *LambdaWait) Comment(input string) *LambdaWait {
 	self.comment = input
 	return self
 }
+
+// FunctionName sets the ARN/Name/or other indicator of the Lambda
+// Function to invoke. See AWS documentation for more details:
+// https://docs.aws.amazon.com/lambda/latest/dg/API_Invoke.html#API_Invoke_RequestParameters
 func (self *LambdaWait) FunctionName(input string) *LambdaWait {
 	self.SetParameter("FunctionName", input)
 	return self
@@ -53,6 +57,11 @@ func (self *LambdaWait) Resource(input string) *LambdaWait {
 	self.resource = input
 	return self
 }
+
+// Timeout is the number of seconds for the task to complete.  If this
+// time elapses without a check-in then the task is considered failed.
+//
+// Any time less than one second will induce a panic.
 func (self *LambdaWait) Timeout(input time.Duration) *LambdaWait {
 	self.timeout = input
 	return self

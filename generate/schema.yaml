@@ -37,14 +37,24 @@ SharedFields:
     Type: time.Duration
     OutputType: Timeout
     JSONName: "TimeoutSeconds"
-
+    Comment: |-
+      // Timeout is the number of seconds for the task to complete.  If this
+      // time elapses without a check-in then the task is considered failed.
+      //
+      // Any time less than one second will induce a panic.
   TableName:
     SkipOutput: true
     Alias: 'self.SetParameter("TableName", input)'
+    Comment: |-
+      // TableName sets the name of the table to make the dynamodb request to.
 
   FunctionName:
     SkipOutput: true
     Alias: 'self.SetParameter("FunctionName", input)'
+    Comment: |-
+      // FunctionName sets the ARN/Name/or other indicator of the Lambda
+      // Function to invoke. See AWS documentation for more details:
+      // https://docs.aws.amazon.com/lambda/latest/dg/API_Invoke.html#API_Invoke_RequestParameters
 
   Key:
     SkipOutput: true

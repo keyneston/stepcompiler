@@ -56,6 +56,11 @@ func (self *Task) Resource(input string) *Task {
 	self.resource = input
 	return self
 }
+
+// Timeout is the number of seconds for the task to complete.  If this
+// time elapses without a check-in then the task is considered failed.
+//
+// Any time less than one second will induce a panic.
 func (self *Task) Timeout(input time.Duration) *Task {
 	self.timeout = input
 	return self

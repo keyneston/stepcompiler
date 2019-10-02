@@ -1,6 +1,6 @@
 .PHONY: all generate clean show test
 
-all: clean generate show test
+all: clean generate test
 
 generate:
 	go run github.com/keyneston/stepcompiler/generate

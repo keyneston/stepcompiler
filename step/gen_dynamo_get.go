@@ -48,10 +48,17 @@ func (self *DynamoGet) Parameters(input map[string]interface{}) *DynamoGet {
 	self.parameters = input
 	return self
 }
+
+// TableName sets the name of the table to make the dynamodb request to.
 func (self *DynamoGet) TableName(input string) *DynamoGet {
 	self.SetParameter("TableName", input)
 	return self
 }
+
+// Timeout is the number of seconds for the task to complete.  If this
+// time elapses without a check-in then the task is considered failed.
+//
+// Any time less than one second will induce a panic.
 func (self *DynamoGet) Timeout(input time.Duration) *DynamoGet {
 	self.timeout = input
 	return self

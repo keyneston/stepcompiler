@@ -53,6 +53,11 @@ func (self *DynamoPut) Resource(input string) *DynamoPut {
 	self.resource = input
 	return self
 }
+
+// Timeout is the number of seconds for the task to complete.  If this
+// time elapses without a check-in then the task is considered failed.
+//
+// Any time less than one second will induce a panic.
 func (self *DynamoPut) Timeout(input time.Duration) *DynamoPut {
 	self.timeout = input
 	return self
